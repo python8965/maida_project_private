@@ -1,0 +1,8 @@
+﻿BoneName,FirstBoneID,LastBoneID,주석,,
+,,,LeftShoulder,1,2
+LeftUpperArm,2,3,,,
+LeftLowerArm,3,4,,,
+RightUpperLeg,11,12,,,
+RightLowerLeg,12,13,,,
+LeftUpperLeg,8,9,,,
+LeftLowerLeg,9,10,,,
