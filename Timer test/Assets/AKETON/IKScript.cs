@@ -13,10 +13,9 @@ using UnityEngine.Serialization;
 public class IKScript : MonoBehaviour
 {
     private Animator animator;
-    Receiver receiver;
+    public Receiver receiver;
     public FullBodyBipedIK ik;
-
-    private List<Dictionary<string, object>> JointsCSV;
+    public bool isStopReceving = false;
     //public FullBodyBipedIK ik;
     
     
@@ -30,33 +29,38 @@ public class IKScript : MonoBehaviour
 
     void Start()
     {
-        // ik.solver.bodyEffector.positionWeight = 0.5f;
-        //
-        // ik.solver.leftHandEffector.positionWeight = 1.0f;
-        // ik.solver.leftHandEffector.rotationWeight = 1.0f;
-        //
-        // ik.solver.leftShoulderEffector.positionWeight = 1.0f;
-        // ik.solver.leftArmChain.bendConstraint.weight = 0.8f;
-        //
-        // ik.solver.rightHandEffector.positionWeight = 1.0f;
-        // ik.solver.rightHandEffector.rotationWeight = 1.0f;
-        //
-        // ik.solver.leftShoulderEffector.positionWeight = 1.0f;
-        //
-        // ik.solver.rightArmChain.bendConstraint.weight = 0.8f;
-        //
-        // ik.solver.leftFootEffector.positionWeight = 1.0f;
-        // ik.solver.leftFootEffector.rotationWeight = 1.0f;
-        //
-        // ik.solver.leftThighEffector.positionWeight = 1.0f;
-        //
-        // ik.solver.leftLegChain.bendConstraint.weight = 0.8f;
-        //
-        // ik.solver.rightFootEffector.positionWeight = 1.0f;
-        // ik.solver.rightFootEffector.rotationWeight = 1.0f;
-        //
-        // ik.solver.rightThighEffector.positionWeight = 1.0f;
-        // ik.solver.rightLegChain.bendConstraint.weight = 0.8f;
+        var aFinger = transform.Find("Body");
+        animator = GetComponent<Animator>();
+        
+        ik = GetComponent<FullBodyBipedIK>();
+        
+        ik.solver.bodyEffector.positionWeight = 0.5f;
+        
+        ik.solver.leftHandEffector.positionWeight = 1.0f;
+        ik.solver.leftHandEffector.rotationWeight = 1.0f;
+        
+        ik.solver.leftShoulderEffector.positionWeight = 1.0f;
+        ik.solver.leftArmChain.bendConstraint.weight = 0.8f;
+        
+        ik.solver.rightHandEffector.positionWeight = 1.0f;
+        ik.solver.rightHandEffector.rotationWeight = 1.0f;
+        
+        ik.solver.leftShoulderEffector.positionWeight = 1.0f;
+        
+        ik.solver.rightArmChain.bendConstraint.weight = 0.8f;
+        
+        ik.solver.leftFootEffector.positionWeight = 1.0f;
+        ik.solver.leftFootEffector.rotationWeight = 1.0f;
+        
+        ik.solver.leftThighEffector.positionWeight = 1.0f;
+        
+        ik.solver.leftLegChain.bendConstraint.weight = 0.8f;
+        
+        ik.solver.rightFootEffector.positionWeight = 1.0f;
+        ik.solver.rightFootEffector.rotationWeight = 1.0f;
+        
+        ik.solver.rightThighEffector.positionWeight = 1.0f;
+        ik.solver.rightLegChain.bendConstraint.weight = 0.8f;
         
         // foreach (var dict in JointsCSV)
         // {
@@ -73,11 +77,12 @@ public class IKScript : MonoBehaviour
         //
         //         for (int i = 0; i < parts.Length - 1; i++)
         //         {
+        //             Debug.Log("Part " + parts[i] + " Loading");
         //             var part = parts[i];
         //             
         //             if (i == 0)
         //             {
-        //                 type = obj.GetProperty(part)!.GetType();
+        //                 type = obj.GetProperty(part).GetType();
         //             }
         //             else
         //             {
@@ -90,6 +95,8 @@ public class IKScript : MonoBehaviour
         //
         //     if (jointType is "Simple" or "Bind")
         //     {
+        //         Debug.Log(ikProperty);
+        //         Debug.Log(ikName);
         //         var Property = ParseProperty(ik.GetType(), ikProperty);
         //         if (Property != null)
         //         {
@@ -98,10 +105,7 @@ public class IKScript : MonoBehaviour
         //     }
         // }
         
-        receiver = gameObject.AddComponent<Receiver>();
-        JointsCSV = CSVReader.Read("joints");
-        var aFinger = transform.Find("Body");
-        animator = GetComponent<Animator>();
+        
         
         
         
@@ -109,6 +113,11 @@ public class IKScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (isStopReceving)
+        {
+            return;
+        }
+        
         Vector3 ReceivedLocationToLocalLocation(Vector3 coord) // 수신받은 좌표를 월드 기준 ik릭 좌표로 변환합니다
         //수학을 좀 못해서 이상할 수 있습니다.
         {
@@ -165,14 +174,14 @@ public class IKScript : MonoBehaviour
 
             ikRig.position = ReceivedLocationToLocalLocation(body);
         }
-
         
+        var csv = CSVReader.Read("joints");
         
-        foreach (var dict in JointsCSV)
+        foreach (var dict in csv)
         {
             string jointType = (string)dict["JointType"];
 
-            if (!(jointType == "Simple" && jointType == "Rotation"))
+            if (!(jointType.Equals("Simple") || jointType.Equals("Rotation")))
             {
                 continue;
             }
@@ -199,7 +208,7 @@ public class IKScript : MonoBehaviour
                 {
                     int TargetID = (int)dict["RotationTargetID"];
                     int HintID = (int)dict["RotationHintID"];
-
+                    int AdjustFlag = (int)dict["Adjust"];
                     var target = Helpers.GetReceivedPosition(receiver.coord, TargetID);
                     var hint = Helpers.GetReceivedPosition(receiver.coord, HintID);
 
@@ -220,12 +229,30 @@ public class IKScript : MonoBehaviour
 
                     var hintvector = (rawhintvector - fix).normalized;
                     
+                    
+                    
                     Debug.DrawRay(ikRig.position, targetvector * 0.2f, Color.red);
                     Debug.DrawRay(ikRig.position, hintvector * 0.2f, Color.green);
+                    
 
-                    var FrontRot = Quaternion.LookRotation(hintvector, targetvector);
+                    var FrontRot = Quaternion.identity;
                     
+                    if (AdjustFlag == 1)
+                    {
+                        var forwardvector = Vector3.Cross(targetvector, hintvector);
+                        Debug.DrawRay(ikRig.position, forwardvector * 0.2f, Color.black);
+                        if (forwardvector.y > 0.0f) // flip
+                        {
+                            forwardvector = -forwardvector;
+                        }
+                        FrontRot = Quaternion.LookRotation(forwardvector, targetvector);
+                    }
+                    else
+                    {
+                        FrontRot = Quaternion.LookRotation(hintvector, targetvector);
+                    }
                     
+
                     ikRig.rotation = FrontRot;
 
                     break;
