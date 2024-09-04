@@ -32,7 +32,7 @@ public class DebugSceneScript : MonoBehaviour
         UnityEditor.Handles.EndGUI();
     }
     
-    public Receiver receiver;
+    public IReceiver receiver;
     GameObject[] objs;
 
     public Mesh mesh;
@@ -43,9 +43,13 @@ public class DebugSceneScript : MonoBehaviour
         
         for (int i = 0; i < 408 / 3; i++)
         {
-            if (objs != null)
+            try
             {
                 drawString((i).ToString(), objs[i].transform.position, Color.green);
+            }
+            catch (Exception)
+            {
+                // ignored
             }
         }
     }
@@ -55,12 +59,13 @@ public class DebugSceneScript : MonoBehaviour
     {
         if (receiver == null)
         {
-            receiver = gameObject.GetComponent<Receiver>();
+            receiver = gameObject.GetComponent<IReceiver>();
         }
         objs = new GameObject[200];
+        var coord = receiver.GetCoord();
         for (int i = 0; i < 408 / 3; i++)
         {
-            var Position = Helpers.GetReceivedPosition(receiver.coord, i);
+            var Position = Helpers.GetReceivedPosition(coord, i);
             
             var GameObj = new GameObject();
             GameObj.name = "GameObj" + i;
@@ -77,9 +82,11 @@ public class DebugSceneScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        var coord = receiver.GetCoord();
+        
         for (int i = 0; i < 408 / 3; i++)
         {
-            var Position = Helpers.GetReceivedPosition(receiver.coord, i);
+            var Position = Helpers.GetReceivedPosition(coord, i);
             
             objs[i].transform.position = Position;
         }

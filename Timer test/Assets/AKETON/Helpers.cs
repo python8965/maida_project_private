@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -68,6 +69,18 @@ public class Helpers
         }
         return null;
     }
+
+    public static Transform GetBone(Transform transform, Avatar avatar, string boneName)
+    {
+        var findbone = avatar.humanDescription.human.ToList()
+            .Find(bone => bone.humanName == boneName);
+
+        //HumanBodyBones.LeftUpperLeg;
+
+        var bone = RecursiveFindChild(transform, findbone.boneName);
+
+        return bone;
+    }
     
     public static Transform FindIKRig(Transform parent, string childName)
     { // 바나나 오브젝트 내의 IK 릭을 찾는 함수
@@ -114,9 +127,10 @@ public class Helpers
         return Position;
     }
     
-    public static Vector3 GetReceivedPosition(float[] Points, int Point) // 원래 있던 함수입니다.
+    public static Vector3 GetReceivedPosition(float[] coord, int Point) // 원래 있던 함수입니다.
     {
-        return TransformReceivedPosition(Points, new Vector3(Points[Point * 3], Points[Point * 3 + 1], Points[Point * 3 + 2]));
+        
+        return TransformReceivedPosition(coord, new Vector3(coord[Point * 3], coord[Point * 3 + 1], coord[Point * 3 + 2]));
     }
     
     

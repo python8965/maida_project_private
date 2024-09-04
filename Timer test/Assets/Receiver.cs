@@ -7,7 +7,12 @@ using System.Net;
 using System.Net.Sockets;
 
 
-public class Receiver : MonoBehaviour
+public abstract class IReceiver : MonoBehaviour 
+{ 
+    public abstract float[] GetCoord();
+} 
+
+public class Receiver : IReceiver
 {
     private UdpClient m_Receiver;
     public int m_Port = 12345;
@@ -65,5 +70,10 @@ public class Receiver : MonoBehaviour
             m_Receiver.Close();
             m_Receiver = null;
         }
+    }
+
+    public override float[] GetCoord()
+    {
+        return coord;
     }
 }

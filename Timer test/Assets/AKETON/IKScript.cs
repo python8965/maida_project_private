@@ -14,14 +14,13 @@ using UnityEngine.Serialization;
 public class IKScript : MonoBehaviour
 {
     private Animator animator;
-    public Receiver receiver;
+    public IReceiver receiver;
     public FullBodyBipedIK ik;
     public bool isStopReceving = false;
     //public FullBodyBipedIK ik;
     
     
-    [FormerlySerializedAs("Factor")] public float factor = 18.0f; // 가져온 위치를 18.0f의 비율로 나누어서 ik 릭에 전달합니다. 나중에 계산 될 수 있을 겁니다.
-    [FormerlySerializedAs("Height")] public float height = 0.5f; // 키 조정?
+    public float factor = 18.0f; // 가져온 위치를 18.0f의 비율로 나누어서 ik 릭에 전달합니다. 나중에 계산 될 수 있을 겁니다.
     // Start is called before the first frame update
     private void OnValidate()
     {
@@ -114,31 +113,59 @@ public class IKScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        var received = receiver.GetCoord();
+        
         if (isStopReceving)
         {
             return;
+        }
+        var foot = Helpers.GetReceivedPosition(received, 13);
+        var resizedFoot = foot / factor;
+        
+        
+        var lThigh = Helpers.GetReceivedPosition(received, 8);
+        var rThigh = Helpers.GetReceivedPosition(received, 11);
+        
+        // Debug.Log(lThigh);
+        // Debug.Log(rThigh);
+
+        var thighDistance = Vector3.Distance(lThigh, rThigh);
+        
+        var lThighBone = Helpers.GetBone(transform, animator.avatar , "LeftUpperLeg");
+        var rThighBone = Helpers.GetBone(transform, animator.avatar , "RightUpperLeg");
+        
+        var boneDistance = Vector3.Distance(lThighBone.position, rThighBone.position);
+
+        
+        // Debug.Log(thighDistance);
+        // Debug.Log(boneDistance);
+        
+        
+        factor = thighDistance / boneDistance * 0.7f;
+
+        if (factor == 0.0f)
+        {
+            factor = 10.0f;
         }
         
         Vector3 ReceivedLocationToLocalLocation(Vector3 coord) // 수신받은 좌표를 월드 기준 ik릭 좌표로 변환합니다
         //수학을 좀 못해서 이상할 수 있습니다.
         {
-            var ReceivedDelta = coord - Vector3.zero; 
-            var ReceivedDeltaResized = ReceivedDelta / factor;
+            var ReceivedDeltaResized = coord / factor;
 
-            var BoneFloor = transform.position + Vector3.up * height;
-            var Result = BoneFloor + ReceivedDeltaResized;
+            var Result = ReceivedDeltaResized - resizedFoot;
             return Result;
         }
         
         { // 머리 부분을 따로 적용하는 코드입니다. 이것도 이미 있던 코드입니다.
             var IK = Helpers.FindIKRig(transform, "Head");
 
-            var chin = Helpers.GetReceivedPosition(receiver.coord, 32);
-            var eye1 = Helpers.GetReceivedPosition(receiver.coord, 41);
-            var eye2 = Helpers.GetReceivedPosition(receiver.coord, 50);
-            var nose = Helpers.GetReceivedPosition(receiver.coord, 54);
-            var ear1 = Helpers.GetReceivedPosition(receiver.coord, 16);
-            var ear2 = Helpers.GetReceivedPosition(receiver.coord, 17);
+            var chin = Helpers.GetReceivedPosition(received, 32);
+            var eye1 = Helpers.GetReceivedPosition(received, 41);
+            var eye2 = Helpers.GetReceivedPosition(received, 50);
+            var nose = Helpers.GetReceivedPosition(received, 54);
+            var ear1 = Helpers.GetReceivedPosition(received, 16);
+            var ear2 = Helpers.GetReceivedPosition(received, 17);
             
             // 머리의 위치 계산 (모든 스피어의 평균 위치)
             Vector3 headPosition = (eye1 + eye2 + nose + ear1 + ear2) / 5.0f;
@@ -165,12 +192,12 @@ public class IKScript : MonoBehaviour
         }
         
         { // 몸통 부분을 따로 처리하는 코드입니다. 
-            var ls = Helpers.GetReceivedPosition(receiver.coord, 2); // Left Shoulder
-            var rs = Helpers.GetReceivedPosition(receiver.coord, 5); // Right Shoulder
-            var lt = Helpers.GetReceivedPosition(receiver.coord, 8); // Left Thigh
-            var rt = Helpers.GetReceivedPosition(receiver.coord, 11); // Right Thigh
+            var ls = Helpers.GetReceivedPosition(received, 2); // Left Shoulder
+            var rs = Helpers.GetReceivedPosition(received, 5); // Right Shoulder
+            var lt = Helpers.GetReceivedPosition(received, 8); // Left Thigh
+            var rt = Helpers.GetReceivedPosition(received, 11); // Right Thigh
 
-            var neck = Helpers.GetReceivedPosition(receiver.coord, 1);
+            var neck = Helpers.GetReceivedPosition(received, 1);
             
             var ms = (ls + rs) / 2.0f;
             
@@ -189,12 +216,7 @@ public class IKScript : MonoBehaviour
         
         var csv = CSVReader.Read("joints");
         
-        // TODO: 어깨 조금 더 몸쪽으로 당기기
-        // 머리 위치 조정
-        // 끊기는거 보간
-        // 손 잡는거
-        // 버텍스 컬러로 하이라이팅
-        // 
+        
         
         foreach (var dict in csv)
         {
@@ -212,24 +234,39 @@ public class IKScript : MonoBehaviour
             
             var ikRig = Helpers.FindIKRig(transform, ikName);
 
-            var unsizedCoord = Helpers.GetReceivedPosition(receiver.coord, jointID);
+            var unsizedCoord = Helpers.GetReceivedPosition(received,jointID);
             var ikPosition = ReceivedLocationToLocalLocation(unsizedCoord);
 
             switch (jointType)
             {
-                case "Simple":
+                case "Position":
                 {
+                    int TargetID = (int)dict["TargetID"];
+
+                    if (TargetID != -1)
+                    {
+                        int Adjust = (int)dict["Adjust"];
+                        
+                        var AdjustTarget = ReceivedLocationToLocalLocation(Helpers.GetReceivedPosition(received,TargetID));
+
+
+                        var Ori = ikPosition * ((100 - Adjust) * 0.01f);
+                        var Adj = AdjustTarget * (Adjust * 0.01f);
+
+                        ikPosition = Ori + Adj;
+                    }
+                    
                     ikRig.position = ikPosition;
                     break;
                 }
                 
                 case "Rotation":
                 {
-                    int TargetID = (int)dict["RotationTargetID"];
-                    int HintID = (int)dict["RotationHintID"];
+                    int TargetID = (int)dict["TargetID"];
+                    int HintID = (int)dict["HintID"];
                     int AdjustFlag = (int)dict["Adjust"];
-                    var target = Helpers.GetReceivedPosition(receiver.coord, TargetID);
-                    var hint = Helpers.GetReceivedPosition(receiver.coord, HintID);
+                    var target = Helpers.GetReceivedPosition(received, TargetID);
+                    var hint = Helpers.GetReceivedPosition(received, HintID);
 
                     var coord = unsizedCoord;
 
@@ -280,11 +317,11 @@ public class IKScript : MonoBehaviour
 
                 case "Grip":
                 {
-                    int TargetID = (int)dict["RotationTargetID"];
-                    int HintID = (int)dict["RotationHintID"];
+                    int TargetID = (int)dict["TargetID"];
+                    int HintID = (int)dict["HintID"];
                     string boneName = (string)dict["IKProperty"];
-                    var middle = ReceivedLocationToLocalLocation(Helpers.GetReceivedPosition(receiver.coord, TargetID));
-                    var last = ReceivedLocationToLocalLocation(Helpers.GetReceivedPosition(receiver.coord, HintID));
+                    var middle = ReceivedLocationToLocalLocation(Helpers.GetReceivedPosition(received,TargetID));
+                    var last = ReceivedLocationToLocalLocation(Helpers.GetReceivedPosition(received,HintID));
 
                     var d1 = (middle - ikPosition).normalized;
                     var d2 = (last - middle).normalized;
@@ -293,7 +330,7 @@ public class IKScript : MonoBehaviour
 
                     if (factor.magnitude > 0.5f)
                     {
-                        Debug.Log("Grip");
+                        //Debug.Log("Grip");
                     }
 
                     
@@ -312,7 +349,7 @@ public class IKScript : MonoBehaviour
                         break;
                     }
                     
-                    Debug.Log("Poser found");
+                    //Debug.Log("Poser found");
                     
                     poser.weight = factor.magnitude;
                     
@@ -352,8 +389,8 @@ public class IKScript : MonoBehaviour
             //Debug.Log(findbone.boneName);
             if (boneIndex != -1)
             {
-                Vector3 startPoint = Helpers.GetReceivedPosition(receiver.coord, firstIndex);
-                Vector3 endPoint = Helpers.GetReceivedPosition(receiver.coord, lastIndex);
+                Vector3 startPoint = Helpers.GetReceivedPosition(received,firstIndex);
+                Vector3 endPoint = Helpers.GetReceivedPosition(received,lastIndex);
                 
                 
                 Debug.DrawLine(startPoint, endPoint, Color.green);
