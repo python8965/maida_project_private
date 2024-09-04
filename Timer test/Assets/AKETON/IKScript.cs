@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using RootMotion.FinalIK;
 using UnityEngine;
@@ -131,24 +132,35 @@ public class IKScript : MonoBehaviour
         
         { // 머리 부분을 따로 적용하는 코드입니다. 이것도 이미 있던 코드입니다.
             var IK = Helpers.FindIKRig(transform, "Head");
-            
-            var eye1 = Helpers.GetReceivedPosition(receiver.coord, 41); // Left Shoulder
-            var eye2 = Helpers.GetReceivedPosition(receiver.coord, 40); // Right Shoulder
-            var nose = Helpers.GetReceivedPosition(receiver.coord, 54); // Left Thigh
-            var ear1 = Helpers.GetReceivedPosition(receiver.coord, 24); // Right Thigh
-            var ear2 = Helpers.GetReceivedPosition(receiver.coord, 39); // Right Thigh 
+
+            var chin = Helpers.GetReceivedPosition(receiver.coord, 32);
+            var eye1 = Helpers.GetReceivedPosition(receiver.coord, 41);
+            var eye2 = Helpers.GetReceivedPosition(receiver.coord, 50);
+            var nose = Helpers.GetReceivedPosition(receiver.coord, 54);
+            var ear1 = Helpers.GetReceivedPosition(receiver.coord, 16);
+            var ear2 = Helpers.GetReceivedPosition(receiver.coord, 17);
             
             // 머리의 위치 계산 (모든 스피어의 평균 위치)
             Vector3 headPosition = (eye1 + eye2 + nose + ear1 + ear2) / 5.0f;
-            IK.position = ReceivedLocationToLocalLocation(headPosition);
+            Vector3 localHeadPosition = ReceivedLocationToLocalLocation(headPosition);
+            IK.position = localHeadPosition;
 
             // 머리의 방향 계산 (여기서는 단순히 눈의 중간과 코를 기준으로 계산)
-            Vector3 eyeCenter = (eye1 + eye2) / 2.0f;
-            Vector3 forward = (nose - eyeCenter).normalized;
-            Vector3 up = Vector3.Cross((ear1 - ear2).normalized, forward).normalized;
+            
+            
+            
+            Vector3 earCenter = (ear1 + ear2) / 2.0f;
+            Vector3 right = (ear2- ear1).normalized;
+            Vector3 up = (earCenter - chin).normalized;
+            //Vector3 up = Vector3.Cross((ear1 - ear2).normalized, forward).normalized;
 
+            Vector3 front = Vector3.Cross(up, right);
+            
+            Debug.DrawRay(localHeadPosition, front * 0.1f , Color.blue);
+            Debug.DrawRay(localHeadPosition, up* 0.1f , Color.green);
+            Debug.DrawRay(localHeadPosition, right* 0.1f , Color.red);
             // 머리의 회전 적용
-            Quaternion headRotation = Quaternion.LookRotation(forward, up);
+            Quaternion headRotation = Quaternion.LookRotation(front, up);
             IK.rotation = headRotation;
         }
         
@@ -177,11 +189,18 @@ public class IKScript : MonoBehaviour
         
         var csv = CSVReader.Read("joints");
         
+        // TODO: 어깨 조금 더 몸쪽으로 당기기
+        // 머리 위치 조정
+        // 끊기는거 보간
+        // 손 잡는거
+        // 버텍스 컬러로 하이라이팅
+        // 
+        
         foreach (var dict in csv)
         {
             string jointType = (string)dict["JointType"];
 
-            if (!(jointType.Equals("Simple") || jointType.Equals("Rotation")))
+            if (jointType.Equals("Bind"))
             {
                 continue;
             }
@@ -191,7 +210,7 @@ public class IKScript : MonoBehaviour
             
             
             
-            var ikRig = Helpers.RecursiveFindChild(transform, ikName);
+            var ikRig = Helpers.FindIKRig(transform, ikName);
 
             var unsizedCoord = Helpers.GetReceivedPosition(receiver.coord, jointID);
             var ikPosition = ReceivedLocationToLocalLocation(unsizedCoord);
@@ -231,8 +250,8 @@ public class IKScript : MonoBehaviour
                     
                     
                     
-                    Debug.DrawRay(ikRig.position, targetvector * 0.2f, Color.red);
-                    Debug.DrawRay(ikRig.position, hintvector * 0.2f, Color.green);
+                    // Debug.DrawRay(ikRig.position, targetvector * 0.2f, Color.red);
+                    // Debug.DrawRay(ikRig.position, hintvector * 0.2f, Color.green);
                     
 
                     var FrontRot = Quaternion.identity;
@@ -261,6 +280,44 @@ public class IKScript : MonoBehaviour
 
                 case "Grip":
                 {
+                    int TargetID = (int)dict["RotationTargetID"];
+                    int HintID = (int)dict["RotationHintID"];
+                    string boneName = (string)dict["IKProperty"];
+                    var middle = ReceivedLocationToLocalLocation(Helpers.GetReceivedPosition(receiver.coord, TargetID));
+                    var last = ReceivedLocationToLocalLocation(Helpers.GetReceivedPosition(receiver.coord, HintID));
+
+                    var d1 = (middle - ikPosition).normalized;
+                    var d2 = (last - middle).normalized;
+
+                    var factor = Vector3.Cross(d1, d2);
+
+                    if (factor.magnitude > 0.5f)
+                    {
+                        Debug.Log("Grip");
+                    }
+
+                    
+                    
+                    var link = ikRig.gameObject.GetComponent<BoneLink>();
+
+                    if (link == null)
+                    {
+                        break;
+                    }
+
+                    var poser = link.bone.GetComponent<HandPoser>();
+                    if (poser == null)
+                    {
+                        Debug.Log("Poser not found");
+                        break;
+                    }
+                    
+                    Debug.Log("Poser found");
+                    
+                    poser.weight = factor.magnitude;
+                    
+                    Debug.DrawRay(ikPosition, d1* 2.0f, Color.red);
+                    Debug.DrawRay(ikPosition, d2 * 2.0f, Color.green);
                     
                     break;
                 }
