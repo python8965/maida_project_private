@@ -1,0 +1,19 @@
+{
+    "name": "BodyProportions.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0139bd98c2bbc574da0031abcaf414a6",
+        "GUID:1496bce6bcca0a149b2401aa0ef7af26"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

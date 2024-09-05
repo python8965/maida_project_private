@@ -151,6 +151,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9383f4b2d7fec7740b3097a296ecfa2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  receiver: {fileID: 0}
   mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   material: {fileID: -9103484930961366303, guid: 81bb9eea30387e442899949a80011e55, type: 3}
 --- !u!4 &479816066

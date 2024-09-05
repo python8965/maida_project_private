@@ -18,8 +18,9 @@ public class IKScript : MonoBehaviour
     public FullBodyBipedIK ik;
     public bool isStopReceving = false;
     //public FullBodyBipedIK ik;
-    
-    
+
+    public Transform LeftUpperLeg;
+    public Transform RightUpperLeg;
     public float factor = 18.0f; // 가져온 위치를 18.0f의 비율로 나누어서 ik 릭에 전달합니다. 나중에 계산 될 수 있을 겁니다.
     // Start is called before the first frame update
     private void OnValidate()
@@ -131,8 +132,8 @@ public class IKScript : MonoBehaviour
 
         var thighDistance = Vector3.Distance(lThigh, rThigh);
         
-        var lThighBone = Helpers.GetBone(transform, animator.avatar , "LeftUpperLeg");
-        var rThighBone = Helpers.GetBone(transform, animator.avatar , "RightUpperLeg");
+        var lThighBone = LeftUpperLeg;
+        var rThighBone = RightUpperLeg;
         
         var boneDistance = Vector3.Distance(lThighBone.position, rThighBone.position);
 
@@ -382,20 +383,10 @@ public class IKScript : MonoBehaviour
                 Debug.LogError($"FirstIndex {firstIndex} is greater than LastIndex {lastIndex}");
             }
             
-            var findbone = animator.avatar.humanDescription.human.ToList()
-                .Find(bone => bone.humanName == boneName);
-            var boneIndex = animator.avatar.humanDescription.skeleton.ToList().FindIndex(p => p.name == findbone.boneName);
+            Vector3 startPoint = Helpers.GetReceivedPosition(received,firstIndex);
+            Vector3 endPoint = Helpers.GetReceivedPosition(received,lastIndex);
             
-            //Debug.Log(findbone.boneName);
-            if (boneIndex != -1)
-            {
-                Vector3 startPoint = Helpers.GetReceivedPosition(received,firstIndex);
-                Vector3 endPoint = Helpers.GetReceivedPosition(received,lastIndex);
                 
-                
-                Debug.DrawLine(startPoint, endPoint, Color.green);
-            }
-            
             
         }
     }

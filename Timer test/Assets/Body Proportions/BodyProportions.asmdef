@@ -1,0 +1,31 @@
+{
+    "name": "BodyProportions",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0139bd98c2bbc574da0031abcaf414a6",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:e0cd26848372d4e5c891c569017e11f1",
+        "GUID:075f0c98112e0dc4583a94a7e6604e7b"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.burst",
+            "expression": "",
+            "define": "UNITY_BURST"
+        },
+        {
+            "name": "com.unity.collections",
+            "expression": "",
+            "define": "UNITY_COLLECTIONS"
+        }
+    ],
+    "noEngineReferences": false
+}
