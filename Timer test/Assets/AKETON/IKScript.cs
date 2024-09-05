@@ -8,12 +8,10 @@ using RootMotion.FinalIK;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-[RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(FullBodyBipedIK))]
 
 public class IKScript : MonoBehaviour
 {
-    private Animator animator;
     public IReceiver receiver;
     public FullBodyBipedIK ik;
     public bool isStopReceving = false;
@@ -30,38 +28,39 @@ public class IKScript : MonoBehaviour
 
     void Start()
     {
-        var aFinger = transform.Find("Body");
-        animator = GetComponent<Animator>();
+        
         
         ik = GetComponent<FullBodyBipedIK>();
         
-        ik.solver.bodyEffector.positionWeight = 0.5f;
+        // ik.solver.bodyEffector.positionWeight = 0.5f;
+        //
+        // ik.solver.leftHandEffector.positionWeight = 1.0f;
+        // ik.solver.leftHandEffector.rotationWeight = 1.0f;
+        //
+        // ik.solver.leftShoulderEffector.positionWeight = 1.0f;
+        // ik.solver.leftArmChain.bendConstraint.weight = 0.8f;
+        //
+        // ik.solver.rightHandEffector.positionWeight = 1.0f;
+        // ik.solver.rightHandEffector.rotationWeight = 1.0f;
+        //
+        // ik.solver.leftShoulderEffector.positionWeight = 1.0f;
+        //
+        // ik.solver.rightArmChain.bendConstraint.weight = 0.8f;
+        //
+        // ik.solver.leftFootEffector.positionWeight = 1.0f;
+        // ik.solver.leftFootEffector.rotationWeight = 1.0f;
+        //
+        // ik.solver.leftThighEffector.positionWeight = 1.0f;
+        //
+        // ik.solver.leftLegChain.bendConstraint.weight = 0.8f;
+        //
+        // ik.solver.rightFootEffector.positionWeight = 1.0f;
+        // ik.solver.rightFootEffector.rotationWeight = 1.0f;
+        //
+        // ik.solver.rightThighEffector.positionWeight = 1.0f;
+        // ik.solver.rightLegChain.bendConstraint.weight = 0.8f;
         
-        ik.solver.leftHandEffector.positionWeight = 1.0f;
-        ik.solver.leftHandEffector.rotationWeight = 1.0f;
-        
-        ik.solver.leftShoulderEffector.positionWeight = 1.0f;
-        ik.solver.leftArmChain.bendConstraint.weight = 0.8f;
-        
-        ik.solver.rightHandEffector.positionWeight = 1.0f;
-        ik.solver.rightHandEffector.rotationWeight = 1.0f;
-        
-        ik.solver.leftShoulderEffector.positionWeight = 1.0f;
-        
-        ik.solver.rightArmChain.bendConstraint.weight = 0.8f;
-        
-        ik.solver.leftFootEffector.positionWeight = 1.0f;
-        ik.solver.leftFootEffector.rotationWeight = 1.0f;
-        
-        ik.solver.leftThighEffector.positionWeight = 1.0f;
-        
-        ik.solver.leftLegChain.bendConstraint.weight = 0.8f;
-        
-        ik.solver.rightFootEffector.positionWeight = 1.0f;
-        ik.solver.rightFootEffector.rotationWeight = 1.0f;
-        
-        ik.solver.rightThighEffector.positionWeight = 1.0f;
-        ik.solver.rightLegChain.bendConstraint.weight = 0.8f;
+        // var aFinger = transform.Find("Body");
         
         // foreach (var dict in JointsCSV)
         // {
