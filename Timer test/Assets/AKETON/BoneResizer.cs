@@ -6,6 +6,8 @@ using UnityEngine;
 public class BoneResizer : MonoBehaviour
 {
     public Vector3 scale = Vector3.one;
+
+    public int depth = 1;
     
     // Start is called before the first frame update
     void Start()
@@ -21,24 +23,36 @@ public class BoneResizer : MonoBehaviour
 
     private void FixedUpdate()
     {
+        var actualscale = scale;
+        
         this.transform.localScale = scale;
         
-        void ChildRecursive(Vector3 _scale)
+        void RecursiveSolve(Transform t, int depth)
         {
-            for (int i = 0; i < transform.childCount; i++)
+            if (depth == 0)
             {
+                return;
+            }
+            
+            for (int i = 0; i < t.childCount; i++)
+            {
+                var child = t.GetChild(i);
                 
-                var childScale = transform.GetChild(i).localScale;
-                var newx = 1.0f / _scale.x;
-                var newy = 1.0f  / _scale.y;
-                var newz = 1.0f  / _scale.z;
-            
-                var newScale = new Vector3(newx, newy, newz);
-            
-                transform.GetChild(i).localScale = newScale;
+                RecursiveSolve(child, depth--);
+                
+                var childScale = child.localScale;
+
+                var newScale = GetCounterScale();
+
+                child.localScale = newScale;
             }
         }
+        
+        RecursiveSolve(transform, depth);
+    }
 
-        ChildRecursive(scale);
+    Vector3 GetCounterScale()
+    {
+        return new Vector3(1.0f / scale.x, 1.0f / scale.y, 1.0f / scale.z);
     }
 }

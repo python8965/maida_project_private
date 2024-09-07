@@ -14,6 +14,7 @@ public class InterpolateReceiver : IReceiver
     public int m_Port = 12345;
     public string m_ReceiveMessage;
     public int InterpolateSize = 5;
+    public int frame = 0;
     
     public float[] coord;
     private List<float[]> queue;
@@ -64,11 +65,12 @@ public class InterpolateReceiver : IReceiver
         if (m_ReceiveMessage.Equals("End"))
         {
             isStablized = false;
+            frame = 0;
             return;
         }
-        
-        m_ReceiveMessage = m_ReceiveMessage.Replace("[", "").Replace("]", "");
 
+        m_ReceiveMessage = m_ReceiveMessage.Replace("[", "").Replace("]", "");
+        
 
         string[] str = m_ReceiveMessage.Split(',');
 
@@ -138,6 +140,8 @@ public class InterpolateReceiver : IReceiver
         }
 
         isStablized = true;
+
+        frame++;
     }
 
     void CloseReceiver()
