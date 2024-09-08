@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 479816066}
   - component: {fileID: 479816065}
   - component: {fileID: 479816067}
+  - component: {fileID: 479816068}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -153,8 +154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   receiver: {fileID: 479816067}
-  mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  material: {fileID: -9103484930961366303, guid: 81bb9eea30387e442899949a80011e55, type: 3}
+  debugColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!4 &479816066
 Transform:
   m_ObjectHideFlags: 0
@@ -164,7 +164,7 @@ Transform:
   m_GameObject: {fileID: 479816064}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.5482888, y: 1.5252061, z: 3.8993282}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -182,9 +182,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a5ad83d1179bb34d88dc765928a594f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BaseReceiver: {fileID: 479816068}
+--- !u!114 &479816068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 479816064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f24e4d3bd1fdac84bbe305b8db5a5e63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_Port: 12345
   m_ReceiveMessage: 
-  coord: []
+  baseCoord: []
 --- !u!1 &520976910
 GameObject:
   m_ObjectHideFlags: 0

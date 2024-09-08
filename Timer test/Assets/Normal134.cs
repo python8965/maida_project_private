@@ -8,7 +8,7 @@ public class Normal134 : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        coord2 = GameObject.Find("Receiver").GetComponent<Receiver>().coord;
+        coord2 = GameObject.Find("Receiver").GetComponent<IReceiver>().GetCoord();
     }
 
     // Update is called once per frame

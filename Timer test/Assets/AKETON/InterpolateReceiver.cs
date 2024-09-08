@@ -11,19 +11,19 @@ using System.Net.Sockets;
 public class InterpolateReceiver : IReceiver
 {
     private UdpClient m_Receiver;
-    public int m_Port = 12345;
-    public string m_ReceiveMessage;
     public int InterpolateSize = 5;
     public int frame = 0;
     
-    public float[] coord;
     private List<float[]> queue;
+    private float[] coord;
     
     private bool isStablized = false;
 
     void Awake()
     {
-        InitReceiver();
+        BaseReceiver.OnReceive += ReceiveCallback;
+        
+        
         coord = new float[408];
         queue = new List<float[]>();
 
@@ -33,60 +33,23 @@ public class InterpolateReceiver : IReceiver
         }
     }
 
-    void OnApplicationQuit()
+    void ReceiveCallback()
     {
-        CloseReceiver();
-    }
-
-    void InitReceiver()
-    {
-        try
-        {
-            if (m_Receiver == null)
-            {
-                m_Receiver = new UdpClient(m_Port);
-                m_Receiver.BeginReceive(new AsyncCallback(ReceiveCallback), null);
-            }
-        }
-        catch (SocketException e)
-        {
-            Debug.Log(e.Message);
-        }
-    }
-
-    void ReceiveCallback(IAsyncResult ar)
-    {
-        IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, m_Port);
-        byte[] received = m_Receiver.EndReceive(ar, ref ipEndPoint);
-        m_Receiver.BeginReceive(new AsyncCallback(ReceiveCallback), null);
-
-        m_ReceiveMessage = Encoding.Default.GetString(received).Trim();
-
-        if (m_ReceiveMessage.Equals("End"))
+        if (BaseReceiver.m_ReceiveMessage.Equals("End"))
         {
             isStablized = false;
             frame = 0;
             return;
         }
 
-        m_ReceiveMessage = m_ReceiveMessage.Replace("[", "").Replace("]", "");
-        
-
-        string[] str = m_ReceiveMessage.Split(',');
-
-        float[] localcoord = new float[408];
-        for (int i = 0; i < 408; i++)
-        {
-            localcoord[i] = float.Parse(str[i]);
-        }
-
+        coord = GetBaseCoord();
 
         for (int i =  InterpolateSize-1; i >= 0; i--)
         {
             queue[i + 1] = queue[i];
         }
         
-        queue[0] = localcoord.Clone() as float[];
+        queue[0] = coord.Clone() as float[];
 
 
         for (int i = 0; i < 408 / 3; i++)
@@ -131,7 +94,7 @@ public class InterpolateReceiver : IReceiver
 
             var result = median ;
             
-            //Debug.Log(count);
+            Debug.Log(count);
 
             coord[i * 3] = result.x;
             coord[i * 3+1] = result.y;
@@ -142,15 +105,6 @@ public class InterpolateReceiver : IReceiver
         isStablized = true;
 
         frame++;
-    }
-
-    void CloseReceiver()
-    {
-        if (m_Receiver != null)
-        {
-            m_Receiver.Close();
-            m_Receiver = null;
-        }
     }
 
     public override float[] GetCoord()

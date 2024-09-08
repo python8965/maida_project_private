@@ -1,28 +1,26 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using System;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using UnityEngine;
 
 
-public abstract class IReceiver : MonoBehaviour 
+public class BaseReceiver : MonoBehaviour 
 { 
-    public abstract float[] GetCoord();
-} 
-
-public class Receiver : IReceiver
-{
     private UdpClient m_Receiver;
     public int m_Port = 12345;
     public string m_ReceiveMessage;
-    public float[] coord;
+    public float[] baseCoord;
 
+    public Action OnReceive;
+
+    
     void Awake()
     {
         InitReceiver();
-        coord = new float[408];
+        baseCoord = new float[408];
     }
 
     void OnApplicationQuit()
@@ -59,8 +57,10 @@ public class Receiver : IReceiver
         string[] str = m_ReceiveMessage.Split(',');
 
         for (int i = 0; i < 408; i++) {
-            coord[i] = float.Parse(str[i]);
+            baseCoord[i] = float.Parse(str[i]);
         }
+
+        OnReceive?.Invoke();
     }
 
     void CloseReceiver()
@@ -71,9 +71,6 @@ public class Receiver : IReceiver
             m_Receiver = null;
         }
     }
-
-    public override float[] GetCoord()
-    {
-        return coord;
-    }
+    
+    
 }
