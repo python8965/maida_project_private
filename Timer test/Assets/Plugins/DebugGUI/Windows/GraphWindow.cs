@@ -87,7 +87,7 @@ namespace WeavUtils
             if (freezeGraphs) return;
 
             graphDictionary[key].Push(val);
-            // Todo: optimize away?
+            
             RecalculateGraphLabelWidth();
         }
 
