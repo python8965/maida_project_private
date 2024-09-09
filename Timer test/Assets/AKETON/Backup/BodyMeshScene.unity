@@ -1002,6 +1002,8 @@ MonoBehaviour:
   receiver: {fileID: 2136825417}
   ik: {fileID: 133782301}
   isStopReceving: 0
+  LeftUpperLeg: {fileID: 0}
+  RightUpperLeg: {fileID: 0}
   factor: 9
 --- !u!114 &133782301
 MonoBehaviour:
@@ -3174,6 +3176,67 @@ Transform:
   m_Children: []
   m_Father: {fileID: 891132728}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &690956531
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 79a68fe5fcf53d343bafe079a355d64a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.0216637
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79a68fe5fcf53d343bafe079a355d64a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79a68fe5fcf53d343bafe079a355d64a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 3.449683
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79a68fe5fcf53d343bafe079a355d64a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79a68fe5fcf53d343bafe079a355d64a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79a68fe5fcf53d343bafe079a355d64a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79a68fe5fcf53d343bafe079a355d64a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79a68fe5fcf53d343bafe079a355d64a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79a68fe5fcf53d343bafe079a355d64a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79a68fe5fcf53d343bafe079a355d64a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 79a68fe5fcf53d343bafe079a355d64a, type: 3}
+      propertyPath: m_Name
+      value: anatomy_merged_rigged
+      objectReference: {fileID: 0}
+    - target: {fileID: 6417125815936643320, guid: 79a68fe5fcf53d343bafe079a355d64a, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 7f60b15540492d941ba926a73416cfff, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 79a68fe5fcf53d343bafe079a355d64a, type: 3}
 --- !u!1 &709218099
 GameObject:
   m_ObjectHideFlags: 0
@@ -3235,8 +3298,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   receiver: {fileID: 2136825417}
-  mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-  material: {fileID: 8554655104631171556, guid: 06e12fd5457a63342891ba63bf8f2cb1, type: 3}
+  debugColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!4 &752897026
 Transform:
   m_ObjectHideFlags: 0
@@ -4365,6 +4427,8 @@ MonoBehaviour:
   receiver: {fileID: 2136825417}
   ik: {fileID: 1141495004}
   isStopReceving: 0
+  LeftUpperLeg: {fileID: 0}
+  RightUpperLeg: {fileID: 0}
   factor: 18
 --- !u!114 &1141495002
 MonoBehaviour:
@@ -6024,10 +6088,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36f56559a0f68bc4aa9c91bd53a309d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Port: 12345
-  m_ReceiveMessage: 
+  BaseReceiver: {fileID: 0}
   InterpolateSize: 5
-  coord: []
+  frame: 0
+  maxDeltaMove: 0
 --- !u!1 &2147406051
 GameObject:
   m_ObjectHideFlags: 0
@@ -6070,3 +6134,4 @@ SceneRoots:
   - {fileID: 2136825416}
   - {fileID: 374704150}
   - {fileID: 752897026}
+  - {fileID: 690956531}
