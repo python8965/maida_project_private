@@ -11,17 +11,18 @@ using System.Net.Sockets;
 public abstract class IReceiver: MonoBehaviour
 {
     public BaseReceiver BaseReceiver;
+
     
-    protected float[] GetBaseCoord()
+    protected Vector3[] GetBaseCoord()
     {
         return BaseReceiver.baseCoord;
     }
-    public abstract float[] GetCoord();
+    public abstract Vector3[] GetCoord();
 }
 
 public class Receiver : IReceiver
 {
-    public override float[] GetCoord()
+    public override Vector3[] GetCoord()
     {
         var BaseCoord = GetBaseCoord();
         

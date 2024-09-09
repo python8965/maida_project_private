@@ -49,6 +49,10 @@ public class CSVReader
 
 public class Helpers
 {
+    
+    public static Vector3 PointB = new Vector3(0, -20, 0);
+    public const int CoordSize = 408;
+    public const int CoordVectorSize = 408 / 3;
     public static Transform RecursiveFindChild(Transform parent, string childName) 
         //비효율적인 함수라 추후 최적화 가능 , 재귀적으로 이름으로 자식 오브젝트를 찾습니다.
     {
@@ -88,26 +92,36 @@ public class Helpers
         return x;
     }
 
-    public static Vector3 TransformReceivedPosition(float[] Points, Vector3 V) //원래 있던 함수입니다.
+    public static Vector3 TransformReceivedPosition(Vector3[] Points, Vector3 V) //원래 있던 함수입니다.
     {
-        var Position = new Vector3(
-            V.x / 50 - Points[30] / 50,
-            V.y / 50 - Points[31] / 50 - 20,
-            V.z / 50 - Points[32] / 50
-        );
-            
-        //134 joint
-        Vector3 pointA = new Vector3( 
-            Points[402] / 50 - Points[405] / 50,
-            Points[403] / 50 - Points[406] / 50 - 20,
-            Points[404] / 50 - Points[407] / 50
-        );
         
-        Vector3 pointB = new Vector3(0, -20, 0);
+        
+        
+        var Position = (V - Points[10]) / 50 +PointB;
+        
+        
+        Vector3 pointA = (Points[134] - Points[135]) / 50 + PointB;
         Vector3 pointC = new Vector3(0, 0, 0);
+        
+        // var Position = new Vector3(
+        //     V.x / 50 - Points[30] / 50,
+        //     V.y / 50 - Points[31] / 50 - 20,
+        //     V.z / 50 - Points[32] / 50
+        // );
+            
+        // //134 joint
+        // Vector3 pointA = new Vector3( 
+        //     Points[402] / 50 - Points[405] / 50,
+        //     Points[403] / 50 - Points[406] / 50 - 20,
+        //     Points[404] / 50 - Points[407] / 50
+        // );
+        //
+        // Vector3 pointB = new Vector3(0, -20, 0);
+        // Vector3 pointC = new Vector3(0, 0, 0);
+        
         // 두 벡터 계산
-        Vector3 vector1 = pointA - pointB;
-        Vector3 vector2 = pointC - pointB;
+        Vector3 vector1 = pointA - PointB;
+        Vector3 vector2 = pointC - PointB;
 
         // 두 벡터 사이의 각도 계산
         float angle = Vector3.Angle(vector1, vector2);
@@ -117,8 +131,8 @@ public class Helpers
 
         // 기준점에서 평면 위의 각도만큼 회전 이동
         Vector3 position = Position;
-        Vector3 vector3 = Quaternion.AngleAxis(angle, rotationAxis) * (position - pointB);
-        Position = pointB + vector3;
+        Vector3 vector3 = Quaternion.AngleAxis(angle, rotationAxis) * (position - PointB);
+        Position = PointB + vector3;
         Position = Quaternion.AngleAxis(angle * ((float)Math.PI / 180f), rotationAxis) * Position;
             
             
@@ -127,10 +141,10 @@ public class Helpers
         return Position;
     }
     
-    public static Vector3 GetReceivedPosition(float[] coord, int Point) // 원래 있던 함수입니다.
+    public static Vector3 GetReceivedPosition(Vector3[] coord, int Point) // 원래 있던 함수입니다.
     {
         
-        return TransformReceivedPosition(coord, new Vector3(coord[Point * 3], coord[Point * 3 + 1], coord[Point * 3 + 2]));
+        return TransformReceivedPosition(coord, coord[Point]);
     }
     
     

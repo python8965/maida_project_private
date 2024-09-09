@@ -5,7 +5,7 @@ using UnityEngine;
 public class Sphere : MonoBehaviour
 {
     public int cubeNum;
-    public float[] coord2;
+    public Vector3[] coord2;
     public Vector3 pointB = new Vector3(0, -20, 0);
     public Vector3 pointC = new Vector3(0, 0, 0);
 
@@ -18,20 +18,22 @@ public class Sphere : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        
         
         // 구체 위치 계산
-        transform.position = new Vector3(
-            coord2[cubeNum * 3] / 50 - coord2[30] / 50,
-            coord2[cubeNum * 3 + 1] / 50 - coord2[31] / 50 - 20,
-            coord2[cubeNum * 3 + 2] / 50 - coord2[32] / 50
-        );
+        transform.position = (coord2[cubeNum] - coord2[10]) / 50 +Helpers.PointB; 
 
+        
+        // new Vector3(
+        //     coord2[cubeNum * 3] / 50 - coord2[30] / 50,
+        //     coord2[cubeNum * 3 + 1] / 50 - coord2[31] / 50 - 20,
+        //     coord2[cubeNum * 3 + 2] / 50 - coord2[32] / 50
+        // );
+        
+        
         // (A, B, C) 점 계산
-        Vector3 pointA = new Vector3(
-            coord2[402] / 50 - coord2[405] / 50,
-            coord2[403] / 50 - coord2[406] / 50 - 20,
-            coord2[404] / 50 - coord2[407] / 50
-        );
+        Vector3 pointA = coord2[134] / 50 - coord2[135] / 50 + Helpers.PointB;
 
         // 두 벡터 계산
         Vector3 vector1 = pointA - pointB;

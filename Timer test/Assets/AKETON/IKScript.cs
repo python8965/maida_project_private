@@ -141,7 +141,7 @@ public class IKScript : MonoBehaviour
         // Debug.Log(boneDistance);
         
         
-        factor = thighDistance / boneDistance * 0.7f;
+        factor = thighDistance / boneDistance;
 
         if (factor == 0.0f)
         {
@@ -164,11 +164,12 @@ public class IKScript : MonoBehaviour
             var eye1 = Helpers.GetReceivedPosition(received, 41);
             var eye2 = Helpers.GetReceivedPosition(received, 50);
             var nose = Helpers.GetReceivedPosition(received, 54);
-            var ear1 = Helpers.GetReceivedPosition(received, 16);
-            var ear2 = Helpers.GetReceivedPosition(received, 17);
+            
+            var ranchor = Helpers.GetReceivedPosition(received, 25);
+            var lanchor = Helpers.GetReceivedPosition(received, 39);
             
             // 머리의 위치 계산 (모든 스피어의 평균 위치)
-            Vector3 headPosition = (eye1 + eye2 + nose + ear1 + ear2) / 5.0f;
+            Vector3 headPosition = (eye1 + eye2 + nose + ranchor + lanchor) / 5.0f;
             Vector3 localHeadPosition = ReceivedLocationToLocalLocation(headPosition);
             IK.position = localHeadPosition;
 
@@ -176,12 +177,12 @@ public class IKScript : MonoBehaviour
             
             
             
-            Vector3 earCenter = (ear1 + ear2) / 2.0f;
-            Vector3 right = (ear2- ear1).normalized;
-            Vector3 up = (earCenter - chin).normalized;
+            Vector3 anchorCenter = (ranchor + lanchor) / 2.0f;
+            Vector3 right = (lanchor- ranchor).normalized;
+            Vector3 up = (anchorCenter - chin).normalized;
             //Vector3 up = Vector3.Cross((ear1 - ear2).normalized, forward).normalized;
 
-            Vector3 front = Vector3.Cross(up, right);
+            Vector3 front = -Vector3.Cross(up, right);
             
             Debug.DrawRay(localHeadPosition, front * 0.1f , Color.blue);
             Debug.DrawRay(localHeadPosition, up* 0.1f , Color.green);
