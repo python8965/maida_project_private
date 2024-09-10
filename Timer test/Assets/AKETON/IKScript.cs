@@ -244,18 +244,18 @@ public class IKScript : MonoBehaviour
                 {
                     int TargetID = (int)dict["TargetID"];
 
-                    if (TargetID != -1)
-                    {
-                        int Adjust = (int)dict["Adjust"];
-                        
-                        var AdjustTarget = ReceivedLocationToLocalLocation(Helpers.GetReceivedPosition(received,TargetID));
-
-
-                        var Ori = ikPosition * ((100 - Adjust) * 0.01f);
-                        var Adj = AdjustTarget * (Adjust * 0.01f);
-
-                        ikPosition = Ori + Adj;
-                    }
+                    // if (TargetID != -1)
+                    // {
+                    //     int Adjust = (int)dict["Adjust"];
+                    //     
+                    //     var AdjustTarget = ReceivedLocationToLocalLocation(Helpers.GetReceivedPosition(received,TargetID));
+                    //
+                    //
+                    //     var Ori = ikPosition * ((100 - Adjust) * 0.01f);
+                    //     var Adj = AdjustTarget * (Adjust * 0.01f);
+                    //
+                    //     ikPosition = Ori + Adj;
+                    // }
                     
                     ikRig.position = ikPosition;
                     break;

@@ -45,6 +45,8 @@ public class CSVReader
         }
         return list;
     }
+    
+    public static List<Dictionary<string, object>> jointCsv = Read("joints");
 }
 
 public class Helpers

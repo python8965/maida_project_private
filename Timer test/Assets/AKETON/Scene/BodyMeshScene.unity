@@ -836,7 +836,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9383f4b2d7fec7740b3097a296ecfa2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  receiver: {fileID: 2136825419}
+  receiver: {fileID: 2136825420}
   debugColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!4 &752897026
 Transform:
@@ -2848,9 +2848,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7aa2df5614b55f46b27e18a86dcd882, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  receiver: {fileID: 2136825419}
+  receiver: {fileID: 2136825420}
   ik: {fileID: 1219369405}
-  isStopReceving: 1
+  isStopReceving: 0
   LeftUpperLeg: {fileID: 1219369339}
   RightUpperLeg: {fileID: 1219369334}
   factor: 18
@@ -3829,7 +3829,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2136825416}
   - component: {fileID: 2136825418}
-  - component: {fileID: 2136825419}
+  - component: {fileID: 2136825420}
   m_Layer: 0
   m_Name: Receiver
   m_TagString: Untagged
@@ -3846,7 +3846,7 @@ Transform:
   m_GameObject: {fileID: 2136825414}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.0664962, y: 0.01199073, z: -1.6616203}
+  m_LocalPosition: {x: -0.0664962, y: 0.01199073, z: -1.66162}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3867,7 +3867,7 @@ MonoBehaviour:
   m_Port: 12345
   m_ReceiveMessage: 
   baseCoord: []
---- !u!114 &2136825419
+--- !u!114 &2136825420
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3876,10 +3876,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 2136825414}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a5ad83d1179bb34d88dc765928a594f, type: 3}
+  m_Script: {fileID: 11500000, guid: 36f56559a0f68bc4aa9c91bd53a309d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   BaseReceiver: {fileID: 2136825418}
+  InterpolateSize: 5
+  frame: 0
+  distanceList: []
+  maxDeltaMove: 0
 --- !u!1 &2147406051
 GameObject:
   m_ObjectHideFlags: 0
