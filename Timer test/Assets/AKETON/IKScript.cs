@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using RootMotion;
 using RootMotion.FinalIK;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 using UnityEngine.Serialization;
 
 [RequireComponent(typeof(FullBodyBipedIK))]
@@ -21,94 +23,94 @@ public class IKScript : MonoBehaviour
     public Transform RightUpperLeg;
     public float factor = 18.0f; // 가져온 위치를 18.0f의 비율로 나누어서 ik 릭에 전달합니다. 나중에 계산 될 수 있을 겁니다.
     // Start is called before the first frame update
-    private void OnValidate()
-    {
-        
-    }
 
-    void Start()
+    public Transform rootBone;
+    
+    [ContextMenu("AutoInit")]
+    private void AutoInit()
     {
-        
-        
+        string error = "";
+
         ik = GetComponent<FullBodyBipedIK>();
         
-        // ik.solver.bodyEffector.positionWeight = 0.5f;
-        //
-        // ik.solver.leftHandEffector.positionWeight = 1.0f;
-        // ik.solver.leftHandEffector.rotationWeight = 1.0f;
-        //
-        // ik.solver.leftShoulderEffector.positionWeight = 1.0f;
-        // ik.solver.leftArmChain.bendConstraint.weight = 0.8f;
-        //
-        // ik.solver.rightHandEffector.positionWeight = 1.0f;
-        // ik.solver.rightHandEffector.rotationWeight = 1.0f;
-        //
-        // ik.solver.leftShoulderEffector.positionWeight = 1.0f;
-        //
-        // ik.solver.rightArmChain.bendConstraint.weight = 0.8f;
-        //
-        // ik.solver.leftFootEffector.positionWeight = 1.0f;
-        // ik.solver.leftFootEffector.rotationWeight = 1.0f;
-        //
-        // ik.solver.leftThighEffector.positionWeight = 1.0f;
-        //
-        // ik.solver.leftLegChain.bendConstraint.weight = 0.8f;
-        //
-        // ik.solver.rightFootEffector.positionWeight = 1.0f;
-        // ik.solver.rightFootEffector.rotationWeight = 1.0f;
-        //
-        // ik.solver.rightThighEffector.positionWeight = 1.0f;
-        // ik.solver.rightLegChain.bendConstraint.weight = 0.8f;
-        
-        // var aFinger = transform.Find("Body");
-        
-        // foreach (var dict in JointsCSV)
-        // {
-        //     string jointType = (string)dict["JointType"];
-        //     string ikName = (string)dict["IKName"];
-        //     string ikProperty = (string)dict["IKProperty"];
-        //     int jointID = (int)dict["JointID"];
-        //
-        //     PropertyInfo ParseProperty(Type obj, string property)
-        //     {
-        //         string[] parts = property.Split('.');
-        //
-        //         Type type = null;
-        //
-        //         for (int i = 0; i < parts.Length - 1; i++)
-        //         {
-        //             Debug.Log("Part " + parts[i] + " Loading");
-        //             var part = parts[i];
-        //             
-        //             if (i == 0)
-        //             {
-        //                 type = obj.GetProperty(part).GetType();
-        //             }
-        //             else
-        //             {
-        //                 type = type?.GetProperty(part)!.GetType();
-        //             }
-        //         }
-        //         
-        //         return type?.GetProperty(parts[^1]);
-        //     }
-        //
-        //     if (jointType is "Simple" or "Bind")
-        //     {
-        //         Debug.Log(ikProperty);
-        //         Debug.Log(ikName);
-        //         var Property = ParseProperty(ik.GetType(), ikProperty);
-        //         if (Property != null)
-        //         {
-        //             Property.SetValue(Property, Helpers.FindIKRig(transform, ikName).transform);
-        //         }
-        //     }
-        // }
+        if (ik.ReferencesError(ref error) && rootBone != null)
+        {
+            var bipedRef = new BipedReferences();
+            BipedReferences.AutoDetectReferences(ref bipedRef, rootBone, BipedReferences.AutoDetectParams.Default);
+            
+            ik.SetReferences(bipedRef, null);
+        }
         
         
+
+        if (ik.ReferencesError(ref error))
+        {
+            Debug.LogWarning("IK script is not initiated");
+            return;
+        }
         
+        if (ik != null)
+        {
+            ik.solver.bodyEffector.positionWeight = 0.5f;
+            ik.solver.leftHandEffector.positionWeight = 1.0f;
+            ik.solver.leftHandEffector.rotationWeight = 1.0f;
+            ik.solver.leftShoulderEffector.positionWeight = 1.0f;
+            ik.solver.leftArmChain.bendConstraint.weight = 0.8f;
+
+            ik.solver.rightHandEffector.positionWeight = 1.0f;
+            ik.solver.rightHandEffector.rotationWeight = 1.0f;
+
+            ik.solver.leftShoulderEffector.positionWeight = 1.0f;
+
+            ik.solver.rightArmChain.bendConstraint.weight = 0.8f;
+
+            ik.solver.leftFootEffector.positionWeight = 1.0f;
+            ik.solver.leftFootEffector.rotationWeight = 1.0f;
+
+            ik.solver.leftThighEffector.positionWeight = 1.0f;
+
+            ik.solver.leftLegChain.bendConstraint.weight = 0.8f;
+
+            ik.solver.rightFootEffector.positionWeight = 1.0f;
+            ik.solver.rightFootEffector.rotationWeight = 1.0f;
+
+            ik.solver.rightThighEffector.positionWeight = 1.0f;
+            ik.solver.rightLegChain.bendConstraint.weight = 0.8f;
+        }
+        if (transform.Find("IKRig") == null)
+        {
+            var obj = new GameObject("IKRig");
+            obj.transform.parent = transform;
+            obj.AddComponent<Rig>();
         
+            foreach (var dict in CSVReader.jointCsv)
+            {
+                string ikName = (string)dict["IKName"];
+            
+                var ikObject = new GameObject(ikName);
+                ikObject.transform.parent = obj.transform;
+            }
+        }
         
+        foreach (var dict in CSVReader.jointCsv)
+        {
+            string jointType = (string)dict["JointType"];
+            string ikName = (string)dict["IKName"];
+            string ikProperty = (string)dict["IKProperty"];
+
+            if (!(jointType.Equals("Bind") || jointType.Equals("Position"))) continue;
+            Debug.Log(ikProperty);
+            Debug.Log(ikName);
+                
+            var targetTransform = Helpers.FindIKRig(transform, ikName).transform;
+            Helpers.SetValue(ik,  ikProperty, targetTransform);
+        }
+
+        
+    }
+    void Start()
+    {
+        ik = GetComponent<FullBodyBipedIK>();
     }
     // Update is called once per frame
     void Update()
@@ -288,8 +290,8 @@ public class IKScript : MonoBehaviour
                     
                     
                     
-                    // Debug.DrawRay(ikRig.position, targetvector * 0.2f, Color.red);
-                    // Debug.DrawRay(ikRig.position, hintvector * 0.2f, Color.green);
+                    Debug.DrawRay(ikRig.position, targetvector * 0.2f, Color.red);
+                    Debug.DrawRay(ikRig.position, hintvector * 0.2f, Color.green);
                     
 
                     var FrontRot = Quaternion.identity;

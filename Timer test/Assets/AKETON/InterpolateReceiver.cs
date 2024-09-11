@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using UnityEditor;
 
 
@@ -28,6 +29,11 @@ public class InterpolateReceiver : IReceiver
 
     void Awake()
     {
+        if (BaseReceiver == null)
+        {
+            Debug.LogError("Base receiver is null");
+        }
+        
         BaseReceiver.OnReceive += ReceiveCallback;
         
         

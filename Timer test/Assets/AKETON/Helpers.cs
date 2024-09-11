@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using Object = System.Object;
 
 
 public class CSVReader
@@ -45,11 +47,11 @@ public class CSVReader
         }
         return list;
     }
-    
-    public static List<Dictionary<string, object>> jointCsv = Read("joints");
+
+    public static List<Dictionary<string, object>> jointCsv => Read("joints");
 }
 
-public class Helpers
+public static class Helpers
 {
     
     public static Vector3 PointB = new Vector3(0, -20, 0);
@@ -149,5 +151,55 @@ public class Helpers
         return TransformReceivedPosition(coord, coord[Point]);
     }
     
-    
+    public static void SetValue(object obj, string propertyPath, object value)
+    {
+        string[] properties = propertyPath.Split('.');
+        SetValueRecursive(obj, properties, 0, value);
+    }
+
+    private static void SetValueRecursive(object obj, string[] fields, int index, object value)
+    {
+        if (index < fields.Length - 1)
+        {
+            FieldInfo fieldInfo = obj.GetType().GetField(fields[index]);
+            PropertyInfo propertyInfo = obj.GetType().GetProperty(fields[index]);
+            object childObj;
+            
+            if (fieldInfo != null)
+            {
+                childObj = fieldInfo.GetValue(obj);
+                
+            }
+            else if (propertyInfo != null)
+            {
+                childObj = propertyInfo.GetValue(obj);
+                
+            }
+            else
+            {
+                throw new ArgumentException($"Property '{fields[index]}' not found on object of type '{obj.GetType()}'");
+            }
+            
+            SetValueRecursive(childObj, fields, index + 1, value);
+        }
+        else
+        {
+            FieldInfo fieldInfo = obj.GetType().GetField(fields[index]);
+            PropertyInfo propertyInfo = obj.GetType().GetProperty(fields[index]);
+            
+            
+            if (fieldInfo != null)
+            {
+                fieldInfo.SetValue(obj, value);
+            }
+            else if (propertyInfo != null)
+            {
+                propertyInfo.SetValue(obj, value);
+            }
+            else
+            {
+                throw new ArgumentException($"Property '{fields[index]}' not found on object of type '{obj.GetType()}'");
+            }
+        }
+    }
 }
