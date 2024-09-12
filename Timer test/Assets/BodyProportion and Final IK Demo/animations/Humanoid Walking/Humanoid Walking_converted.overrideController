@@ -1,0 +1,13 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Humanoid Walking_converted
+  m_Controller: {fileID: 9100000, guid: 1204362ea160d44f7937305b219e3e19, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 739b2627204c24240aa40c4f67f59d0e, type: 3}
+    m_OverrideClip: {fileID: 7400000, guid: c82be767197d9b547b6215a83477adf9, type: 2}

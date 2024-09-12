@@ -16,6 +16,8 @@ public class DebugSceneScript : MonoBehaviour
     private Mesh mesh;
     private Material material;
 
+    private float scaleConstant = 1.0f;
+
     public Color debugColor = Color.white;
 
     private void Awake()
@@ -66,7 +68,7 @@ public class DebugSceneScript : MonoBehaviour
                 name = "GameObj" + i,
                 transform =
                 {
-                    localScale = new Vector3(0.1f, 0.1f, 0.1f),
+                    localScale = new Vector3(0.1f, 0.1f, 0.1f) / scaleConstant,
                     position = Position,
                     parent = transform
                 }
@@ -97,7 +99,7 @@ public class DebugSceneScript : MonoBehaviour
         
         for (int i = 0; i < 408 / 3; i++)
         {
-            var Position = Helpers.GetReceivedPosition(coord, i);
+            var Position = Helpers.GetReceivedPosition(coord, i) / scaleConstant;
             
             objs[i].transform.position = Position;
         }

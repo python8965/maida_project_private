@@ -39,9 +39,16 @@ public class IKScript : MonoBehaviour
             BipedReferences.AutoDetectReferences(ref bipedRef, rootBone, BipedReferences.AutoDetectParams.Default);
             
             ik.SetReferences(bipedRef, null);
+            
+            
         }
-        
-        
+        else
+        {
+            Debug.Log("root Bone is null");
+            
+        }
+
+
 
         if (ik.ReferencesError(ref error))
         {
@@ -60,7 +67,7 @@ public class IKScript : MonoBehaviour
             ik.solver.rightHandEffector.positionWeight = 1.0f;
             ik.solver.rightHandEffector.rotationWeight = 1.0f;
 
-            ik.solver.leftShoulderEffector.positionWeight = 1.0f;
+            ik.solver.rightShoulderEffector.positionWeight = 1.0f;
 
             ik.solver.rightArmChain.bendConstraint.weight = 0.8f;
 
@@ -290,8 +297,11 @@ public class IKScript : MonoBehaviour
                     
                     
                     
-                    Debug.DrawRay(ikRig.position, targetvector * 0.2f, Color.red);
-                    Debug.DrawRay(ikRig.position, hintvector * 0.2f, Color.green);
+                    Debug.DrawRay(ikRig.position, targetvector * 0.4f, Color.red);
+                    Debug.DrawRay(ikRig.position, hintvector * 0.4f, Color.green);
+                    
+                    Debug.DrawRay(unsizedCoord, targetvector * 1.0f, Color.red);
+                    Debug.DrawRay(unsizedCoord, hintvector * 1.0f, Color.green);
                     
 
                     var FrontRot = Quaternion.identity;
@@ -299,11 +309,12 @@ public class IKScript : MonoBehaviour
                     if (AdjustFlag == 1)
                     {
                         var forwardvector = Vector3.Cross(targetvector, hintvector);
-                        Debug.DrawRay(ikRig.position, forwardvector * 0.2f, Color.black);
-                        if (forwardvector.y > 0.0f) // flip
+                        
+                        if (forwardvector.y < 0.0f) // flip
                         {
                             forwardvector = -forwardvector;
                         }
+                        Debug.DrawRay(ikRig.position, forwardvector * 0.4f, Color.black);
                         FrontRot = Quaternion.LookRotation(forwardvector, targetvector);
                     }
                     else
