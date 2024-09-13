@@ -306,11 +306,11 @@ public class IKScript : MonoBehaviour
 
                     var FrontRot = Quaternion.identity;
                     
-                    if (AdjustFlag == 1)
+                    if (true)
                     {
                         var forwardvector = Vector3.Cross(targetvector, hintvector);
                         
-                        if (forwardvector.y < 0.0f) // flip
+                        if (AdjustFlag == 1) // flip
                         {
                             forwardvector = -forwardvector;
                         }
