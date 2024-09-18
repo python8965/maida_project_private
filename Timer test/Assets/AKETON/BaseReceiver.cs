@@ -16,6 +16,9 @@ public class BaseReceiver : MonoBehaviour
     public Vector3[] baseCoord;
 
     public Action OnReceive;
+    public Action OnFinishReceive;
+    
+    bool isFinished;
 
 
     void Awake()
@@ -24,13 +27,25 @@ public class BaseReceiver : MonoBehaviour
         Receive();
     }
 
+    private void OnApplicationQuit()
+    {
+        Debug.Log("Application Quit");
+        isFinished = true;
+        baseCoord = new Vector3[Helpers.CoordVectorSize];
+        
+        OnFinishReceive?.Invoke();
+    }
+
     async void Receive()
     {
+        
+        isFinished = false;
+        
         try
         {
             using var udpClient = new UdpClient(m_Port);
             
-            while (true)
+            while (!isFinished)
             {
                 var receivedResult = await udpClient.ReceiveAsync();
 
@@ -64,4 +79,6 @@ public class BaseReceiver : MonoBehaviour
         }
 
     }
+
+    
 }

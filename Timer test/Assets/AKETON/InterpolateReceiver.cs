@@ -43,6 +43,14 @@ public class InterpolateReceiver : IReceiver
         distanceList = new List<double>();
     }
 
+    protected override void OnFinishReceive()
+    {
+        coord = new Vector3[Helpers.CoordVectorSize];
+        queue = new Queue<Vector3[]>();
+        
+        distanceList = new List<double>();
+    }
+
     void ReceiveCallback()
     {
         if (BaseReceiver.m_ReceiveMessage.Equals("End"))
