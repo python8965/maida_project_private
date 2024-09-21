@@ -13,6 +13,8 @@ public class DebugSceneScript : MonoBehaviour
     public IReceiver receiver;
     GameObject[] objs;
 
+    public bool isRaw;
+
     private Mesh mesh;
     private Material material;
 
@@ -99,7 +101,17 @@ public class DebugSceneScript : MonoBehaviour
         
         for (int i = 0; i < 408 / 3; i++)
         {
-            var Position = Helpers.GetReceivedPosition(coord, i) / scaleConstant;
+            var Position = Vector3.zero;
+            if (isRaw)
+            {
+                Position = Helpers.GetReceivedPosition(coord, i) / scaleConstant;
+            }
+            else
+            {
+                Position = coord[i];
+            }
+            
+            
             
             objs[i].transform.position = Position;
         }

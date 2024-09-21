@@ -150,7 +150,7 @@ public class IKScript : MonoBehaviour
         // Debug.Log(boneDistance);
         
         
-        factor = thighDistance / boneDistance;
+        factor = thighDistance / boneDistance / 1.5f;
 
         if (factor == 0.0f)
         {
@@ -191,7 +191,7 @@ public class IKScript : MonoBehaviour
             Vector3 up = (anchorCenter - chin).normalized;
             //Vector3 up = Vector3.Cross((ear1 - ear2).normalized, forward).normalized;
 
-            Vector3 front = -Vector3.Cross(up, right);
+            Vector3 front = Vector3.Cross(up, right);
             
             Debug.DrawRay(localHeadPosition, front * 0.1f , Color.blue);
             Debug.DrawRay(localHeadPosition, up* 0.1f , Color.green);

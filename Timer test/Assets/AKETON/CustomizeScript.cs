@@ -55,7 +55,7 @@ public class CustomizeScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        MarkDirty();
     }
     
     [ContextMenu("MarkDirty")]
@@ -79,19 +79,18 @@ public class CustomizeScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isChanged)
+        for (int i = 0; i < bones.Length; i++)
         {
-            for (int i = 0; i < bones.Length; i++)
-            {
-                var bone = bones[i];
-
-                for (int j = 0; j < bone.bones.Length; j++)
-                {
-                    bone.bones[j].localScale = new Vector3(1.0f, (float)scale[i], 1.0f);
-                }
-            }
+            var bone = bones[i];
             
-            isChanged = false;
+            var scalev = (float)scale[i];
+            var scaleav = (scalev + 1.0f) / 2.0f;
+
+            for (int j = 0; j < bone.bones.Length; j++)
+            {
+                Debug.Log(bone.bones[j].name);
+                bone.bones[j].localScale = new Vector3( scaleav, scalev,scaleav);
+            }
         }
     }
 }
