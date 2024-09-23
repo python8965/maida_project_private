@@ -138,7 +138,7 @@ public class CustomizeScript : MonoBehaviour
             
             if (jointType.Equals("Position"))
             {
-                var boneName = (string)bone["CalibrationBoneName"];
+                var boneName = (string)bone["BoneName"];
                 var boneId = customizeBones.ToList().FindIndex(bones => bones.name.Equals(boneName));
                 if (boneId == -1)
                 {

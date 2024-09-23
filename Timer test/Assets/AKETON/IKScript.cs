@@ -11,12 +11,13 @@ using UnityEngine.Animations.Rigging;
 using UnityEngine.Serialization;
 
 [RequireComponent(typeof(FullBodyBipedIK))]
-
+[RequireComponent(typeof(ScalableBoneReference))]
 public class IKScript : MonoBehaviour
 {
     public IReceiver receiver;
     public FullBodyBipedIK ik;
     public bool isStopReceving = false;
+    public bool isMirroredReceving = false;
     //public FullBodyBipedIK ik;
 
     public Transform LeftUpperLeg;
@@ -25,12 +26,16 @@ public class IKScript : MonoBehaviour
     // Start is called before the first frame update
 
     public Transform rootBone;
+    public bool debug;
+    private ScalableBoneReference reference;
+
+    public SerializableDictionary<string, Quaternion> baseRotations;
     
     [ContextMenu("AutoInit")]
     private void AutoInit()
     {
         string error = "";
-
+        reference = GetComponent<ScalableBoneReference>();
         ik = GetComponent<FullBodyBipedIK>();
         
         if (ik.ReferencesError(ref error) && rootBone != null)
@@ -99,29 +104,55 @@ public class IKScript : MonoBehaviour
             }
         }
         
+        baseRotations.Clear();
+        
+        
         foreach (var dict in CSVReader.jointCsv)
         {
             string jointType = (string)dict["JointType"];
             string ikName = (string)dict["IKName"];
             string ikProperty = (string)dict["IKProperty"];
 
-            if (!(jointType.Equals("Bind") || jointType.Equals("Position"))) continue;
-            Debug.Log(ikProperty);
-            Debug.Log(ikName);
+            if (jointType.Equals("Bind") || jointType.Equals("Position"))
+            {
+                Debug.Log(ikProperty);
+                Debug.Log(ikName);
+
+                var targetTransform = Helpers.FindIKRig(transform, ikName).transform;
+                Helpers.SetValue(ik, ikProperty, targetTransform);
+            }
+
+            if (jointType.Equals("Rotation"))
+            {
+                Debug.Log(ikProperty);
+                Debug.Log(ikName);
                 
-            var targetTransform = Helpers.FindIKRig(transform, ikName).transform;
-            Helpers.SetValue(ik,  ikProperty, targetTransform);
+                var boneName = (string)dict["BoneName"];
+
+                var refTransform = reference.GetReferenceByName(boneName);
+                if (refTransform == null)
+                {
+                    Debug.LogError("Reference transform is null, maybe forget to init reference?");
+                }
+                
+                baseRotations.Add(boneName, refTransform.rotation);
+
+
+            }
         }
 
         
     }
     void Start()
     {
+        reference = GetComponent<ScalableBoneReference>();
         ik = GetComponent<FullBodyBipedIK>();
     }
     // Update is called once per frame
     void Update()
     {
+        CSVReader.isMirrored = isMirroredReceving;
+        
         var received = receiver.GetCoord();
         
         if (isStopReceving)
@@ -192,10 +223,19 @@ public class IKScript : MonoBehaviour
             //Vector3 up = Vector3.Cross((ear1 - ear2).normalized, forward).normalized;
 
             Vector3 front = Vector3.Cross(up, right);
+
+            if (isMirroredReceving)
+            {
+                front = -front;
+            }
             
-            Debug.DrawRay(localHeadPosition, front * 0.1f , Color.blue);
-            Debug.DrawRay(localHeadPosition, up* 0.1f , Color.green);
-            Debug.DrawRay(localHeadPosition, right* 0.1f , Color.red);
+            if (debug)
+            {
+                Debug.DrawRay(localHeadPosition, front * 0.1f, Color.blue);
+                Debug.DrawRay(localHeadPosition, up * 0.1f, Color.green);
+                Debug.DrawRay(localHeadPosition, right * 0.1f, Color.red);
+            }
+            
             // 머리의 회전 적용
             Quaternion headRotation = Quaternion.LookRotation(front, up);
             IK.rotation = headRotation;
@@ -224,7 +264,7 @@ public class IKScript : MonoBehaviour
             ikRig.position = ReceivedLocationToLocalLocation(body);
         }
         
-        var csv = CSVReader.Read("joints");
+        var csv = CSVReader.jointCsv;
         
         
         
@@ -275,6 +315,7 @@ public class IKScript : MonoBehaviour
                     int TargetID = (int)dict["TargetID"];
                     int HintID = (int)dict["HintID"];
                     int AdjustFlag = (int)dict["Adjust"];
+                    var boneName = (string)dict["BoneName"];
                     var target = Helpers.GetReceivedPosition(received, TargetID);
                     var hint = Helpers.GetReceivedPosition(received, HintID);
 
@@ -295,18 +336,25 @@ public class IKScript : MonoBehaviour
 
                     var hintvector = (rawhintvector - fix).normalized;
                     
-                    
-                    
-                    Debug.DrawRay(ikRig.position, targetvector * 0.4f, Color.red);
-                    Debug.DrawRay(ikRig.position, hintvector * 0.4f, Color.green);
-                    
-                    Debug.DrawRay(unsizedCoord, targetvector * 1.0f, Color.red);
-                    Debug.DrawRay(unsizedCoord, hintvector * 1.0f, Color.green);
+                    if (debug)
+                    {
+
+                        Debug.DrawRay(ikRig.position, targetvector * 0.4f, Color.red);
+                        Debug.DrawRay(ikRig.position, hintvector * 0.4f, Color.green);
+
+                        Debug.DrawRay(unsizedCoord, targetvector * 1.0f, Color.red);
+                        Debug.DrawRay(unsizedCoord, hintvector * 1.0f, Color.green);
+                    }
                     
 
                     var FrontRot = Quaternion.identity;
                     
-                    if (true)
+                    reference.LeftFoot.rotation = roation;
+
+                    var rot = baseRotations[boneName];
+                    
+                    
+                    if (false)
                     {
                         var forwardvector = Vector3.Cross(targetvector, hintvector);
                         
@@ -319,7 +367,17 @@ public class IKScript : MonoBehaviour
                     }
                     else
                     {
-                        FrontRot = Quaternion.LookRotation(hintvector, targetvector);
+                        var upvector = Vector3.Cross(targetvector, hintvector);
+                        if (AdjustFlag == 1) // flip
+                        {
+                            upvector = -upvector;
+                        }
+                        
+                        Debug.DrawRay(ikRig.position, upvector * 0.4f, Color.black);
+
+                        var diffrot = Quaternion.LookRotation(targetvector, upvector);
+                        FrontRot = diffrot * rot;
+                        Debug.DrawRay(ikRig.position, FrontRot.eulerAngles.normalized , Color.white);
                     }
                     
 
@@ -367,8 +425,12 @@ public class IKScript : MonoBehaviour
                     
                     poser.weight = factor.magnitude;
                     
-                    Debug.DrawRay(ikPosition, d1* 2.0f, Color.red);
-                    Debug.DrawRay(ikPosition, d2 * 2.0f, Color.green);
+                    if (debug)
+                    {
+
+                        Debug.DrawRay(ikPosition, d1 * 2.0f, Color.red);
+                        Debug.DrawRay(ikPosition, d2 * 2.0f, Color.green);
+                    }
                     
                     break;
                 }
@@ -377,30 +439,5 @@ public class IKScript : MonoBehaviour
         
         
         // 배경에 수신받은 좌표 기준으로 선을 그리는 디버깅 코드입니다. 
-        var dicts = CSVReader.Read("bones");
-        foreach (var dict in dicts)
-        {
-            string boneName = (string)dict["BoneName"];
-            int firstIndex = (int)dict["FirstBoneID"];
-            int lastIndex = (int)dict["LastBoneID"];
-            
-            
-            
-            if (boneName == "")
-            {
-                continue;
-            }
-
-            if (firstIndex > lastIndex)
-            {
-                Debug.LogError($"FirstIndex {firstIndex} is greater than LastIndex {lastIndex}");
-            }
-            
-            Vector3 startPoint = Helpers.GetReceivedPosition(received,firstIndex);
-            Vector3 endPoint = Helpers.GetReceivedPosition(received,lastIndex);
-            
-                
-            
-        }
     }
 }

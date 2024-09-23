@@ -35,6 +35,16 @@ public class ScalableBoneReference : MonoBehaviour
         
     }
 
+    public Transform GetReferenceByName(string boneName)
+    {
+        return (Transform)GetType().GetField(boneName).GetValue(this);
+    }
+
+    public void SetReferenceByName(string boneName, Transform bone)
+    {
+        GetType().GetField(boneName).SetValue(this, bone);
+    }
+
     
     [ContextMenu("AutoUpdateReferences")]
     void AutoUpdateReferences()
@@ -55,7 +65,9 @@ public class ScalableBoneReference : MonoBehaviour
                 {
                     Debug.Log("Find boneName : " + boneName);
                     
-                    GetType().GetField(boneName).SetValue(this, child);
+                    SetReferenceByName(boneName, child);
+                    
+                    //GetType().GetField(boneName).SetValue(this, child);
                 }
             }
         }

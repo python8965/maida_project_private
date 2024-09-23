@@ -13,12 +13,12 @@ public class DebugSceneScript : MonoBehaviour
     public IReceiver receiver;
     GameObject[] objs;
 
-    public bool isRaw;
+    [FormerlySerializedAs("isModify")] public bool isRaw;
 
     private Mesh mesh;
     private Material material;
 
-    private float scaleConstant = 1.0f;
+    public float scaleConstant = 1.0f;
 
     public Color debugColor = Color.white;
 
@@ -102,7 +102,7 @@ public class DebugSceneScript : MonoBehaviour
         for (int i = 0; i < 408 / 3; i++)
         {
             var Position = Vector3.zero;
-            if (isRaw)
+            if (!isRaw)
             {
                 Position = Helpers.GetReceivedPosition(coord, i) / scaleConstant;
             }
@@ -114,6 +114,33 @@ public class DebugSceneScript : MonoBehaviour
             
             
             objs[i].transform.position = Position;
+        }
+        
+        
+        var dicts = CSVReader.boneCsv;
+        foreach (var dict in dicts)
+        {
+            string boneName = (string)dict["BoneName"];
+            int firstIndex = (int)dict["FirstBoneID"];
+            int lastIndex = (int)dict["LastBoneID"];
+            
+            
+            
+            if (boneName == "")
+            {
+                continue;
+            }
+
+            if (firstIndex > lastIndex)
+            {
+                Debug.LogError($"FirstIndex {firstIndex} is greater than LastIndex {lastIndex}");
+            }
+            
+            Vector3 startPoint = Helpers.GetReceivedPosition(coord,firstIndex);
+            Vector3 endPoint = Helpers.GetReceivedPosition(coord,lastIndex);
+            
+                
+            
         }
     }
 }
