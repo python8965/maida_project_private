@@ -13,6 +13,8 @@ def load_list_from_file(filename):
 # 리스트에서 값을 하나씩 소켓을 통해 전송
 def send_list_over_socket(values):
     for value in values:
+        
+
         client_socket.sendto(value.encode(), SERVER_ADDRESS)
         time.sleep(0.1)  # 0.1초 대기
     client_socket.sendto("End".encode(), SERVER_ADDRESS)

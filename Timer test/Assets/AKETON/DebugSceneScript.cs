@@ -5,6 +5,7 @@ using System.Net;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 public class DebugSceneScript : MonoBehaviour
 {
@@ -19,8 +20,12 @@ public class DebugSceneScript : MonoBehaviour
     private Material material;
 
     public float scaleConstant = 1.0f;
+    public Vector3 debugOffset;
 
     public Color debugColor = Color.white;
+
+
+    public bool isDrawText;
 
     private void Awake()
     {
@@ -35,26 +40,27 @@ public class DebugSceneScript : MonoBehaviour
     private void OnDrawGizmos()
     {
         
-        
-        if (objs != null)
+        if (isDrawText)
         {
-            if (objs.Length == 0)
+            if (objs != null)
             {
-                return;
-            }
-            var style = new GUIStyle();
-            style.fontSize = 15;
-            style.fontStyle = FontStyle.Bold;
-            style.normal.textColor = debugColor;
-            
-            
-            for (int i = 0; i < 408 / 3; i++)
-            {
-                Handles.Label(objs[i].transform.position  ,i.ToString(), style);
+                if (objs.Length == 0)
+                {
+                    return;
+                }
+
+                var style = new GUIStyle();
+                style.fontSize = 15;
+                style.fontStyle = FontStyle.Bold;
+                style.normal.textColor = debugColor;
+
+
+                for (int i = 0; i < 408 / 3; i++)
+                {
+                    Handles.Label(objs[i].transform.position, i.ToString(), style);
+                }
             }
         }
-        
-        Handles.Label(Vector3.zero, "Test");
     }
 
     // Start is called before the first frame update
@@ -63,7 +69,7 @@ public class DebugSceneScript : MonoBehaviour
         var coord = receiver.GetCoord();
         for (int i = 0; i < 408 / 3; i++)
         {
-            var Position = Helpers.GetReceivedPosition(coord, i);
+            var Position = Helpers.GetReceivedPosition(coord, i, scaleConstant, debugOffset);
             
             var GameObj = new GameObject
             {
@@ -104,7 +110,7 @@ public class DebugSceneScript : MonoBehaviour
             var Position = Vector3.zero;
             if (!isRaw)
             {
-                Position = Helpers.GetReceivedPosition(coord, i) / scaleConstant;
+                Position = Helpers.GetReceivedPosition(coord, i, scaleConstant, debugOffset);
             }
             else
             {
@@ -120,24 +126,39 @@ public class DebugSceneScript : MonoBehaviour
         var dicts = CSVReader.boneCsv;
         foreach (var dict in dicts)
         {
+            
+            string boneType = (string)dict["BoneType"];
             string boneName = (string)dict["BoneName"];
             int firstIndex = (int)dict["FirstBoneID"];
             int lastIndex = (int)dict["LastBoneID"];
             
             
             
-            if (boneName == "")
-            {
-                continue;
-            }
 
             if (firstIndex > lastIndex)
             {
                 Debug.LogError($"FirstIndex {firstIndex} is greater than LastIndex {lastIndex}");
             }
+
+            if (boneType.Equals("Single"))
+            {
+                Vector3 startPoint = Helpers.GetReceivedPosition(coord,firstIndex, scaleConstant, debugOffset);
+                Vector3 endPoint = Helpers.GetReceivedPosition(coord,lastIndex, scaleConstant, debugOffset);
+                
+                Debug.DrawLine(startPoint, endPoint, Color.green);
+            } else if (boneType.Equals("Sequence"))
+            {
+                for (int i = firstIndex; i < lastIndex; i++)
+                {
+                    Vector3 startPoint = Helpers.GetReceivedPosition(coord, i, scaleConstant, debugOffset);
+                    Vector3 endPoint = Helpers.GetReceivedPosition(coord, i + 1, scaleConstant, debugOffset);
+                    
+                    Debug.DrawLine(startPoint, endPoint, Color.red / 4  * i);
+                }
+                
+            }
             
-            Vector3 startPoint = Helpers.GetReceivedPosition(coord,firstIndex);
-            Vector3 endPoint = Helpers.GetReceivedPosition(coord,lastIndex);
+            
             
                 
             

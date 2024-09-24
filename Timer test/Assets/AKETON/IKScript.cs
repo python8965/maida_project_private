@@ -314,75 +314,73 @@ public class IKScript : MonoBehaviour
                 {
                     int TargetID = (int)dict["TargetID"];
                     int HintID = (int)dict["HintID"];
-                    int AdjustFlag = (int)dict["Adjust"];
+                    
                     var boneName = (string)dict["BoneName"];
+                    
+                    
+                    bool AdjustFlag = boneName.Contains("Left");
+                    bool FixFlag = boneName.Contains("Hand");
+                    
                     var target = Helpers.GetReceivedPosition(received, TargetID);
                     var hint = Helpers.GetReceivedPosition(received, HintID);
 
                     var coord = unsizedCoord;
 
-                    var vector = target - coord;
-                    var project = Vector3.ProjectOnPlane(vector, Vector3.up);
-
-                    
-                    var roation = Quaternion.FromToRotation(Vector3.up, target - coord);
-
                     var rawhintvector = hint - coord;
                     var rawtargetvector = target - coord;
-                    
-                    var fix = Vector3.Project(rawhintvector, rawtargetvector);
-                    
-                    var targetvector = rawtargetvector.normalized;
 
+                    var fix = Vector3.Project(rawhintvector, rawtargetvector);
+                        
+                    var targetvector = rawtargetvector.normalized;
                     var hintvector = (rawhintvector - fix).normalized;
                     
+                    var FrontRot = Quaternion.identity;
+
+                    var rot = baseRotations[boneName];
+                    
+                    
+                    
+                    
+                    var upvector = Vector3.Cross(targetvector, hintvector);
+                    if (AdjustFlag) // flip
+                    {
+                        upvector = -upvector;
+                    }
+
+                    if (debug)
+                    {
+                        
+                    }
+                    
+                    var diffrot = Quaternion.identity;
+                    
+
+                    if (FixFlag)
+                    {
+                        diffrot = Quaternion.LookRotation(hintvector, -upvector);
+                    }
+                    else
+                    {
+                        diffrot = Quaternion.LookRotation(targetvector, upvector);
+                    }
+                    
+                    
+                    FrontRot = diffrot * rot;
+                    
+                    
+
+                    ikRig.rotation = FrontRot;
+
                     if (debug)
                     {
 
                         Debug.DrawRay(ikRig.position, targetvector * 0.4f, Color.red);
                         Debug.DrawRay(ikRig.position, hintvector * 0.4f, Color.green);
-
-                        Debug.DrawRay(unsizedCoord, targetvector * 1.0f, Color.red);
-                        Debug.DrawRay(unsizedCoord, hintvector * 1.0f, Color.green);
-                    }
-                    
-
-                    var FrontRot = Quaternion.identity;
-                    
-                    reference.LeftFoot.rotation = roation;
-
-                    var rot = baseRotations[boneName];
-                    
-                    
-                    if (false)
-                    {
-                        var forwardvector = Vector3.Cross(targetvector, hintvector);
-                        
-                        if (AdjustFlag == 1) // flip
-                        {
-                            forwardvector = -forwardvector;
-                        }
-                        Debug.DrawRay(ikRig.position, forwardvector * 0.4f, Color.black);
-                        FrontRot = Quaternion.LookRotation(forwardvector, targetvector);
-                    }
-                    else
-                    {
-                        var upvector = Vector3.Cross(targetvector, hintvector);
-                        if (AdjustFlag == 1) // flip
-                        {
-                            upvector = -upvector;
-                        }
-                        
                         Debug.DrawRay(ikRig.position, upvector * 0.4f, Color.black);
-
-                        var diffrot = Quaternion.LookRotation(targetvector, upvector);
-                        FrontRot = diffrot * rot;
-                        Debug.DrawRay(ikRig.position, FrontRot.eulerAngles.normalized , Color.white);
+                        // Debug.DrawRay(ikRig.position, rawhintvector.normalized * 1.0f, Color.blue);
+                        // Debug.DrawRay(ikRig.position, rawtargetvector.normalized  * 1.0f, Color.magenta);
                     }
                     
-
-                    ikRig.rotation = FrontRot;
-
                     break;
                 }
 

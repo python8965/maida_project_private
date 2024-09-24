@@ -164,10 +164,10 @@ public static class Helpers
         return Position;
     }
     
-    public static Vector3 GetReceivedPosition(Vector3[] coord, int Point) // 원래 있던 함수입니다.
+    public static Vector3 GetReceivedPosition(Vector3[] coord, int Point, float scale = 1.0f, Vector3 offset = new Vector3()) // 원래 있던 함수입니다.
     {
         
-        return TransformReceivedPosition(coord, coord[Point]);
+        return TransformReceivedPosition(coord, coord[Point]) / scale + offset;
     }
     
     public static void SetValue(object obj, string propertyPath, object value)
