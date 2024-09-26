@@ -12,17 +12,20 @@ public struct CustomizeBones
 {
     [FormerlySerializedAs("startBoneName")] public string name;
     public string endBoneName;
-    public Transform startBone;
-    public Transform endBone;
+    public Transform ikStartBone;
+    public Transform ikEndBone;
+    
+    public Transform bone;
+    
     [ReadOnly]
-    public float originalRaito;
+    public float originalLength;
 }
 
 [RequireComponent(typeof(IKScript))]
 [RequireComponent(typeof(ScalableBoneReference))]
 public class CustomizeScript : MonoBehaviour
 {
-    [FormerlySerializedAs("bones")] public CustomizeBones[] customizeBones;
+    public CustomizeBones[] customizeBones;
 
     
     
@@ -72,7 +75,19 @@ public class CustomizeScript : MonoBehaviour
             {
                 name = "RightUpLeg",
                 endBoneName = "RightLeg",
-            }
+            },
+            new CustomizeBones
+            {
+                name = "LeftLeg",
+                endBoneName = "LeftFoot",
+            },
+            new CustomizeBones
+            {
+                name = "RightLeg",
+                endBoneName = "RightFoot",
+            },
+            
+            
         };
         
         scale = new double[customizeBones.Length];
@@ -84,8 +99,11 @@ public class CustomizeScript : MonoBehaviour
 
         for (int i = 0; i < customizeBones.Length; i++)
         {
-            customizeBones[i].startBone = (Transform)reference.GetType().GetField(customizeBones[i].name).GetValue(reference);
-            customizeBones[i].endBone = (Transform)reference.GetType().GetField(customizeBones[i].endBoneName).GetValue(reference);
+            customizeBones[i].bone = (Transform)reference.GetType().GetField(customizeBones[i].name).GetValue(reference);
+            //customizeBones[i].endBone = (Transform)reference.GetType().GetField(customizeBones[i].endBoneName).GetValue(reference);
+            
+            customizeBones[i].ikStartBone = Helpers.FindIKRig(transform, customizeBones[i].name);
+            customizeBones[i].ikEndBone = Helpers.FindIKRig(transform, customizeBones[i].endBoneName);
         }
     }
 
@@ -96,22 +114,20 @@ public class CustomizeScript : MonoBehaviour
     }
 
     
-    [ContextMenu("SetOriginalRaito")]
-    void SetOriginalRaito()
+    [ContextMenu("SetOriginalLength")]
+    void SetOriginalLength()
     {
         reference = GetComponent<ScalableBoneReference>();
-        
-        var identityLength = Vector3.Distance(reference.LeftUpLeg.position, reference.RightUpLeg.position); ; 
         
         for (var index = 0; index < customizeBones.Length; index++)
         {
             var b = customizeBones[index];
 
-            var boneLength = Vector3.Distance(b.startBone.position, b.endBone.position);    
+            var boneLength = Vector3.Distance(b.ikStartBone.position, b.ikEndBone.position);    
             
-            Debug.Log("SetOriginalRaito "+boneLength +" / "+identityLength + " = " + boneLength/identityLength);
+            Debug.Log("SetOriginalRaito "+boneLength );
             
-            customizeBones[index].originalRaito = boneLength / identityLength;
+            customizeBones[index].originalLength = boneLength;
                               
         }
     }
@@ -124,45 +140,50 @@ public class CustomizeScript : MonoBehaviour
     [ContextMenu("Calibrate")]
     void Calibrate()
     {
-        var coord = ik.receiver.GetCoord();
-
-        var ThighA = Helpers.GetReceivedPosition(coord, 8);
+        reference = GetComponent<ScalableBoneReference>();
         
-        var ThighB = Helpers.GetReceivedPosition(coord, 11);
-        
-        var identityLength = Vector3.Distance(ThighA, ThighB);
-        
-        foreach (var bone in CSVReader.jointCsv)
+        for (var index = 0; index < customizeBones.Length; index++)
         {
-            var jointType = (string)bone["JointType"];
-            
-            if (jointType.Equals("Position"))
-            {
-                var boneName = (string)bone["BoneName"];
-                var boneId = customizeBones.ToList().FindIndex(bones => bones.name.Equals(boneName));
-                if (boneId == -1)
-                {
-                    Debug.Log(boneName + " is not exist. continue.");
-                    continue;
-                }
-                
-                var JointID = (int)bone["JointID"];
-                var TargetID = (int)bone["TargetID"];
+            var b = customizeBones[index];
 
-                var JointPos = Helpers.GetReceivedPosition(coord, JointID);
-                var TargetPos = Helpers.GetReceivedPosition(coord, TargetID);
-
-                var Length =  Vector3.Distance(JointPos, TargetPos);
-
-                var Raito = Length / identityLength;
-                
-                scale[boneId] = customizeBones[boneId].originalRaito / Raito;
-                Debug.Log($"Calibration receivedRatio : {Raito} result {scale[boneId]}");
-                
-                
-                //
-            }
+            var boneLength = Vector3.Distance(b.ikStartBone.position, b.ikEndBone.position);    
+                         
+            scale[index] = boneLength / customizeBones[index].originalLength ;
+            Debug.Log($"{b.name} receivedLength : {boneLength} original: {customizeBones[index].originalLength} result {scale[index]}");
         }
+        //
+        // foreach (var bone in CSVReader.jointCsv)
+        // {
+        //     var jointType = (string)bone["JointType"];
+        //     
+        //     if (jointType.Equals("Position"))
+        //     {
+        //         var boneName = (string)bone["IKName"];
+        //         var boneId = customizeBones.ToList().FindIndex(bones => bones.name.Equals(boneName));
+        //         if (boneId == -1)
+        //         {
+        //             Debug.Log(boneName + " is not exist. continue.");
+        //             continue;
+        //         }
+        //         
+        //         var boneLength = Vector3.Distance(b.startBone.position, b.endBone.position);    
+        //
+        //         
+        //         var JointPos = Helpers.GetReceivedPosition(coord, JointID, ik.divideFactor);
+        //         var TargetPos = Helpers.GetReceivedPosition(coord, TargetID, ik.divideFactor);
+        //         
+        //         Debug.DrawLine(JointPos, TargetPos, Color.yellow);
+        //
+        //         var Length =  Vector3.Distance(JointPos, TargetPos);
+        //
+        //
+        //         scale[boneId] = Length / customizeBones[boneId].originalLength ;
+        //         Debug.Log($"Calibration bone name {boneName} receivedLength : {Length} , {customizeBones[boneId].originalLength} result {scale[boneId]}");
+        //         
+        //         
+        //         //
+        //     }
+        // }
     }
 
     // Update is called once per frame
@@ -173,9 +194,9 @@ public class CustomizeScript : MonoBehaviour
             var bone = customizeBones[i];
             
             var scalev = (float)scale[i];
-            var scaleav = (scalev + 1.0f) / 2.0f;
+            var scaleav = (scalev + 3.0f) / 4.0f;
             
-            bone.startBone.localScale = new Vector3(scaleav, scalev,scaleav);
+            bone.bone.localScale = new Vector3(scaleav, scalev,scaleav);
 
             // for (int j = 0; j < bone.bones.Length; j++)
             // {

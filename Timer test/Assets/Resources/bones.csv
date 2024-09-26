@@ -1,4 +1,4 @@
-﻿BoneType,BoneName,FirstBoneID,LastBoneID,FirstBoneIDSet,LastBoneIDSet
+﻿BoneType,IKName,FirstBoneID,LastBoneID,FirstBoneIDSet,LastBoneIDSet
 Single,LeftUpperArm,2,3,,
 Single,LeftLowerArm,3,4,,
 Single,LeftHand,4,125,,

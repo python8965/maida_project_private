@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using RootMotion;
 using RootMotion.FinalIK;
 using UnityEngine;
@@ -22,7 +23,7 @@ public class IKScript : MonoBehaviour
 
     public Transform LeftUpperLeg;
     public Transform RightUpperLeg;
-    public float factor = 18.0f; // 가져온 위치를 18.0f의 비율로 나누어서 ik 릭에 전달합니다. 나중에 계산 될 수 있을 겁니다.
+    [FormerlySerializedAs("factor")] public float divideFactor = 18.0f; // 가져온 위치를 18.0f의 비율로 나누어서 ik 릭에 전달합니다. 나중에 계산 될 수 있을 겁니다.
     // Start is called before the first frame update
 
     public Transform rootBone;
@@ -127,7 +128,7 @@ public class IKScript : MonoBehaviour
                 Debug.Log(ikProperty);
                 Debug.Log(ikName);
                 
-                var boneName = (string)dict["BoneName"];
+                var boneName = (string)dict["IKName"];
 
                 var refTransform = reference.GetReferenceByName(boneName);
                 if (refTransform == null)
@@ -160,7 +161,7 @@ public class IKScript : MonoBehaviour
             return;
         }
         var foot = Helpers.GetReceivedPosition(received, 13);
-        var resizedFoot = foot / factor;
+        var resizedFoot = foot / divideFactor;
         
         
         var lThigh = Helpers.GetReceivedPosition(received, 8);
@@ -181,17 +182,17 @@ public class IKScript : MonoBehaviour
         // Debug.Log(boneDistance);
         
         
-        factor = thighDistance / boneDistance / 1.5f;
+        divideFactor = thighDistance / boneDistance / 1.1f;
 
-        if (factor == 0.0f)
+        if (divideFactor == 0.0f)
         {
-            factor = 10.0f;
+            divideFactor = 10.0f;
         }
         
         Vector3 ReceivedLocationToLocalLocation(Vector3 coord) // 수신받은 좌표를 월드 기준 ik릭 좌표로 변환합니다
         //수학을 좀 못해서 이상할 수 있습니다.
         {
-            var ReceivedDeltaResized = coord / factor;
+            var ReceivedDeltaResized = coord / divideFactor;
 
             var Result = ReceivedDeltaResized - resizedFoot;
             return Result;
@@ -283,6 +284,8 @@ public class IKScript : MonoBehaviour
             
             
             var ikRig = Helpers.FindIKRig(transform, ikName);
+            
+            Debug.Log(ikName);
 
             var unsizedCoord = Helpers.GetReceivedPosition(received,jointID);
             var ikPosition = ReceivedLocationToLocalLocation(unsizedCoord);
@@ -315,7 +318,7 @@ public class IKScript : MonoBehaviour
                     int TargetID = (int)dict["TargetID"];
                     int HintID = (int)dict["HintID"];
                     
-                    var boneName = (string)dict["BoneName"];
+                    var boneName = (string)dict["IKName"];
                     
                     
                     bool AdjustFlag = boneName.Contains("Left");

@@ -128,7 +128,7 @@ public class DebugSceneScript : MonoBehaviour
         {
             
             string boneType = (string)dict["BoneType"];
-            string boneName = (string)dict["BoneName"];
+            string boneName = (string)dict["IKName"];
             int firstIndex = (int)dict["FirstBoneID"];
             int lastIndex = (int)dict["LastBoneID"];
             
