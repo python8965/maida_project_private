@@ -28,7 +28,7 @@ public class IKScript : MonoBehaviour
 
     public Transform rootBone;
     public bool debug;
-    private ScalableBoneReference reference;
+    private ScalableBoneReference scalableBoneReference;
 
     public SerializableDictionary<string, Quaternion> baseRotations;
     
@@ -36,7 +36,7 @@ public class IKScript : MonoBehaviour
     private void AutoInit()
     {
         string error = "";
-        reference = GetComponent<ScalableBoneReference>();
+        scalableBoneReference = GetComponent<ScalableBoneReference>();
         ik = GetComponent<FullBodyBipedIK>();
         
         if (ik.ReferencesError(ref error) && rootBone != null)
@@ -130,13 +130,19 @@ public class IKScript : MonoBehaviour
                 
                 var boneName = (string)dict["IKName"];
 
-                var refTransform = reference.GetReferenceByName(boneName);
+                var refTransform = scalableBoneReference.GetReferenceByName(boneName);
                 if (refTransform == null)
                 {
                     Debug.LogError("Reference transform is null, maybe forget to init reference?");
                 }
                 
-                baseRotations.Add(boneName, refTransform.rotation);
+                var ikRig = Helpers.FindIKRig(transform, boneName).rotation;
+
+
+
+                var diff = Quaternion.Inverse(ikRig) * refTransform.rotation;
+                
+                baseRotations.Add(boneName,  diff);
 
 
             }
@@ -146,7 +152,7 @@ public class IKScript : MonoBehaviour
     }
     void Start()
     {
-        reference = GetComponent<ScalableBoneReference>();
+        scalableBoneReference = GetComponent<ScalableBoneReference>();
         ik = GetComponent<FullBodyBipedIK>();
     }
     // Update is called once per frame
@@ -321,8 +327,8 @@ public class IKScript : MonoBehaviour
                     var boneName = (string)dict["IKName"];
                     
                     
-                    bool AdjustFlag = boneName.Contains("Left");
-                    bool FixFlag = boneName.Contains("Hand");
+                    bool isLeft = boneName.Contains("Left");
+                    bool isHand = boneName.Contains("Hand");
                     
                     var target = Helpers.GetReceivedPosition(received, TargetID);
                     var hint = Helpers.GetReceivedPosition(received, HintID);
@@ -345,7 +351,7 @@ public class IKScript : MonoBehaviour
                     
                     
                     var upvector = Vector3.Cross(targetvector, hintvector);
-                    if (AdjustFlag) // flip
+                    if (isLeft) // flip
                     {
                         upvector = -upvector;
                     }
@@ -358,17 +364,19 @@ public class IKScript : MonoBehaviour
                     var diffrot = Quaternion.identity;
                     
 
-                    if (FixFlag)
+                    if (isHand)
                     {
-                        diffrot = Quaternion.LookRotation(hintvector, -upvector);
+                        diffrot = Quaternion.LookRotation(upvector, targetvector);
                     }
                     else
                     {
-                        diffrot = Quaternion.LookRotation(targetvector, upvector);
+                        diffrot = Quaternion.LookRotation(upvector, targetvector);
+                        diffrot *= rot;
+                        //diffrot = Quaternion.LookRotation(targetvector, upvector);
                     }
-                    
-                    
-                    FrontRot = diffrot * rot;
+
+
+                    FrontRot = diffrot;// * rot;
                     
                     
 

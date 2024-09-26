@@ -21,8 +21,17 @@ def send_list_over_socket(values):
     # print(f"Sent: {value}")
     time.sleep(2.0)  # 0.1초 대기
 
-# 리스트를 불러오고 전송 실행
-filename = f'list_values_{sys.argv[1]}.txt'
+d = sys.argv[1]
+ds = d.split('/')
+
+if (len(ds) == 1):
+
+    # 리스트를 불러오고 전송 실행
+    filename = f'list_values_{sys.argv[1]}.txt'
+elif (len(ds) == 2):
+
+    # 리스트를 불러오고 전송 실행
+    filename = f'list_values_prev/list_values_{ds[1]}.txt'
 print(f"loading {filename}")
 loaded_list = load_list_from_file(filename)
 print("done")
