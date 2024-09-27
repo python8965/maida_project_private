@@ -21,7 +21,7 @@ public class InterpolateReceiver : IReceiver
     private Vector3[] coord;
     
     bool skipFrame = false;
-    bool enableFilterByDistance = true;
+    bool enableFilterByDistance = false;
     bool enableInterpolate = true;
 
     [DebugGUIGraph(min: -1, max: 1, r: 0, g: 1, b: 1, autoScale: true)]

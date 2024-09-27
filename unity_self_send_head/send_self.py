@@ -19,7 +19,7 @@ def send_list_over_socket(values):
     time.sleep(2.0)  # 0.1초 대기
 
 # 리스트를 불러오고 전송 실행
-filename = 'list_values_20240921_1.txt'
+filename = 'list_values_yjy_hand_flip.txt'
 loaded_list = load_list_from_file(filename)
 print("done")
 while True:

@@ -63,11 +63,19 @@ public class BaseReceiver : MonoBehaviour
 
 
                 string[] str = m_ReceiveMessage.Split(',');
+                
 
                 for (int i = 0; i < Helpers.CoordVectorSize; i++)
                 {
-                    baseCoord[i] = new Vector3(float.Parse(str[i * 3]), float.Parse(str[i * 3 + 1]),
-                        float.Parse(str[i * 3 + 2]));
+                    try
+                    {
+                        baseCoord[i] = new Vector3(float.Parse(str[i * 3]), float.Parse(str[i * 3 + 1]),
+                            float.Parse(str[i * 3 + 2]));
+                    }catch (Exception e)
+                    {
+                        Debug.Log(e);
+                        Debug.Log("error index is"  + i);
+                    }
                 }
 
                 OnReceive?.Invoke();

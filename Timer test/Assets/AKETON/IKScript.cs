@@ -188,7 +188,7 @@ public class IKScript : MonoBehaviour
         // Debug.Log(boneDistance);
         
         
-        divideFactor = thighDistance / boneDistance / 1.1f;
+        //divideFactor = thighDistance / boneDistance / 1.1f;
 
         if (divideFactor == 0.0f)
         {
@@ -291,7 +291,7 @@ public class IKScript : MonoBehaviour
             
             var ikRig = Helpers.FindIKRig(transform, ikName);
             
-            Debug.Log(ikName);
+            //Debug.Log(ikName);
 
             var unsizedCoord = Helpers.GetReceivedPosition(received,jointID);
             var ikPosition = ReceivedLocationToLocalLocation(unsizedCoord);
