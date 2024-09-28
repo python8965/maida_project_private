@@ -163,11 +163,20 @@ public static class Helpers
             
         return Position;
     }
+
+    private static Vector3 FloorTransform;
+    private static float receivedScale;
+
+    public static void SetReceivedPositionVar(Vector3 FloorTransform, float receivedScale)
+    {
+        Helpers.receivedScale = receivedScale;
+        Helpers.FloorTransform = FloorTransform;
+    }
     
-    public static Vector3 GetReceivedPosition(Vector3[] coord, int Point, float scale = 1.0f, Vector3 offset = new Vector3()) // 원래 있던 함수입니다.
+    public static Vector3 GetReceivedPosition(Vector3[] coord, int Point) // 원래 있던 함수입니다.
     {
         
-        return TransformReceivedPosition(coord, coord[Point]) / scale + offset;
+        return TransformReceivedPosition(coord, coord[Point]) / receivedScale + FloorTransform;
     }
     
     public static void SetValue(object obj, string propertyPath, object value)

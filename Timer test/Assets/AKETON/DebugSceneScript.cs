@@ -69,7 +69,7 @@ public class DebugSceneScript : MonoBehaviour
         var coord = receiver.GetCoord();
         for (int i = 0; i < 408 / 3; i++)
         {
-            var Position = Helpers.GetReceivedPosition(coord, i, scaleConstant, debugOffset);
+            var Position = Helpers.GetReceivedPosition(coord, i);
             
             var GameObj = new GameObject
             {
@@ -110,7 +110,7 @@ public class DebugSceneScript : MonoBehaviour
             var Position = Vector3.zero;
             if (!isRaw)
             {
-                Position = Helpers.GetReceivedPosition(coord, i, scaleConstant, debugOffset);
+                Position = Helpers.GetReceivedPosition(coord, i);
             }
             else
             {
@@ -142,16 +142,16 @@ public class DebugSceneScript : MonoBehaviour
 
             if (boneType.Equals("Single"))
             {
-                Vector3 startPoint = Helpers.GetReceivedPosition(coord,firstIndex, scaleConstant, debugOffset);
-                Vector3 endPoint = Helpers.GetReceivedPosition(coord,lastIndex, scaleConstant, debugOffset);
+                Vector3 startPoint = Helpers.GetReceivedPosition(coord,firstIndex);
+                Vector3 endPoint = Helpers.GetReceivedPosition(coord,lastIndex);
                 
                 Debug.DrawLine(startPoint, endPoint, Color.green);
             } else if (boneType.Equals("Sequence"))
             {
                 for (int i = firstIndex; i < lastIndex; i++)
                 {
-                    Vector3 startPoint = Helpers.GetReceivedPosition(coord, i, scaleConstant, debugOffset);
-                    Vector3 endPoint = Helpers.GetReceivedPosition(coord, i + 1, scaleConstant, debugOffset);
+                    Vector3 startPoint = Helpers.GetReceivedPosition(coord, i);
+                    Vector3 endPoint = Helpers.GetReceivedPosition(coord, i + 1);
                     
                     Debug.DrawLine(startPoint, endPoint, Color.red / 4  * i);
                 }

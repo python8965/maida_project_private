@@ -51,11 +51,8 @@ public class IKScript : MonoBehaviour
         else
         {
             Debug.Log("root Bone is null");
-            
         }
-
-
-
+        
         if (ik.ReferencesError(ref error))
         {
             Debug.LogWarning("IK script is not initiated");
@@ -90,6 +87,7 @@ public class IKScript : MonoBehaviour
             ik.solver.rightThighEffector.positionWeight = 1.0f;
             ik.solver.rightLegChain.bendConstraint.weight = 0.8f;
         }
+        
         if (transform.Find("IKRig") == null)
         {
             var obj = new GameObject("IKRig");
@@ -195,14 +193,7 @@ public class IKScript : MonoBehaviour
             divideFactor = 10.0f;
         }
         
-        Vector3 ReceivedLocationToLocalLocation(Vector3 coord) // 수신받은 좌표를 월드 기준 ik릭 좌표로 변환합니다
-        //수학을 좀 못해서 이상할 수 있습니다.
-        {
-            var ReceivedDeltaResized = coord / divideFactor;
-
-            var Result = ReceivedDeltaResized - resizedFoot;
-            return Result;
-        }
+        Helpers.SetReceivedPositionVar(resizedFoot, divideFactor);
         
         { // 머리 부분을 따로 적용하는 코드입니다. 이것도 이미 있던 코드입니다.
             var IK = Helpers.FindIKRig(transform, "Head");
@@ -217,7 +208,7 @@ public class IKScript : MonoBehaviour
             
             // 머리의 위치 계산 (모든 스피어의 평균 위치)
             Vector3 headPosition = (eye1 + eye2 + nose + ranchor + lanchor) / 5.0f;
-            Vector3 localHeadPosition = ReceivedLocationToLocalLocation(headPosition);
+            Vector3 localHeadPosition = headPosition;
             IK.position = localHeadPosition;
 
             // 머리의 방향 계산 (여기서는 단순히 눈의 중간과 코를 기준으로 계산)
@@ -268,7 +259,7 @@ public class IKScript : MonoBehaviour
             
             
 
-            ikRig.position = ReceivedLocationToLocalLocation(body);
+            ikRig.position = body;
         }
         
         var csv = CSVReader.jointCsv;
@@ -294,7 +285,7 @@ public class IKScript : MonoBehaviour
             Debug.Log(ikName);
 
             var unsizedCoord = Helpers.GetReceivedPosition(received,jointID);
-            var ikPosition = ReceivedLocationToLocalLocation(unsizedCoord);
+            var ikPosition = unsizedCoord;
 
             switch (jointType)
             {
@@ -401,8 +392,8 @@ public class IKScript : MonoBehaviour
                     int TargetID = (int)dict["TargetID"];
                     int HintID = (int)dict["HintID"];
                     string boneName = (string)dict["IKProperty"];
-                    var middle = ReceivedLocationToLocalLocation(Helpers.GetReceivedPosition(received,TargetID));
-                    var last = ReceivedLocationToLocalLocation(Helpers.GetReceivedPosition(received,HintID));
+                    var middle = Helpers.GetReceivedPosition(received,TargetID);
+                    var last = Helpers.GetReceivedPosition(received,HintID);
 
                     var d1 = (middle - ikPosition).normalized;
                     var d2 = (last - middle).normalized;
