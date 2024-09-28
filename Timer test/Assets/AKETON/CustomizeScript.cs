@@ -189,6 +189,8 @@ public class CustomizeScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Calibrate();
+        
         for (int i = 0; i < customizeBones.Length; i++)
         {
             var bone = customizeBones[i];
