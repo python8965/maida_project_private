@@ -158,42 +158,14 @@ public class IKScript : MonoBehaviour
     {
         CSVReader.isMirrored = isMirroredReceving;
         
-        var received = receiver.GetCoord();
+        
         
         if (isStopReceving)
         {
             return;
         }
-        var foot = Helpers.GetReceivedPosition(received, 13);
-        var resizedFoot = foot / divideFactor;
         
-        
-        var lThigh = Helpers.GetReceivedPosition(received, 8);
-        var rThigh = Helpers.GetReceivedPosition(received, 11);
-        
-        // Debug.Log(lThigh);
-        // Debug.Log(rThigh);
-
-        var thighDistance = Vector3.Distance(lThigh, rThigh);
-        
-        var lThighBone = LeftUpperLeg;
-        var rThighBone = RightUpperLeg;
-        
-        var boneDistance = Vector3.Distance(lThighBone.position, rThighBone.position);
-
-        
-        // Debug.Log(thighDistance);
-        // Debug.Log(boneDistance);
-        
-        
-        //divideFactor = thighDistance / boneDistance / 1.1f;
-
-        if (divideFactor == 0.0f)
-        {
-            divideFactor = 10.0f;
-        }
-        
-        Helpers.SetReceivedPositionVar(resizedFoot, divideFactor);
+        var received = receiver.GetCoord();
         
         { // 머리 부분을 따로 적용하는 코드입니다. 이것도 이미 있던 코드입니다.
             var IK = Helpers.FindIKRig(transform, "Head");
@@ -212,8 +184,6 @@ public class IKScript : MonoBehaviour
             IK.position = localHeadPosition;
 
             // 머리의 방향 계산 (여기서는 단순히 눈의 중간과 코를 기준으로 계산)
-            
-            
             
             Vector3 anchorCenter = (ranchor + lanchor) / 2.0f;
             Vector3 right = (lanchor- ranchor).normalized;
@@ -337,9 +307,6 @@ public class IKScript : MonoBehaviour
                     var FrontRot = Quaternion.identity;
 
                     var rot = baseRotations[boneName];
-                    
-                    
-                    
                     
                     var upvector = Vector3.Cross(targetvector, hintvector);
                     if (isLeft) // flip
