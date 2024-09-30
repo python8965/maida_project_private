@@ -49,17 +49,30 @@ public class CSVReader
     }
 
     public static bool isMirrored;
+    
+    public static Dictionary<string, List<Dictionary<string, object>>> cachedCsv = new();
+
+    private static List<Dictionary<string, object>> GetCachedCsvByKey(string key)
+    {
+        if (!cachedCsv.ContainsKey(key))
+        {
+            cachedCsv.Add(key, Read(key));
+        }
+                
+        return cachedCsv[key];
+    }
 
     public static List<Dictionary<string, object>> jointCsv {
         get
         {
             if (isMirrored)
             {
-                return Read("joints_reverse");
+                
+                return GetCachedCsvByKey("joints_reverse");
             }
             else
             {
-                return Read("joints");
+                return GetCachedCsvByKey("joints");
             }
             
             
@@ -67,7 +80,7 @@ public class CSVReader
         
     }
     
-    public static List<Dictionary<string, object>> boneCsv => Read("bones");
+    public static List<Dictionary<string, object>> boneCsv => GetCachedCsvByKey("bones");
 }
 
 public static class Helpers

@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.Collections;
 using UnityEngine;
 
 
@@ -29,9 +30,13 @@ public class BaseReceiver : MonoBehaviour
     
     public ReceiverMode mode = ReceiverMode.TransformAndScaled;
     
+    
+    
     bool isFinished;
     
-    private Vector3 floorTransform;
+    [ReadOnly]
+    public Vector3 floorTransform;
+    public bool isFloorTransformSet;
     public float receivedScale = 18.0f;
     
     void Awake()
@@ -137,10 +142,15 @@ public class BaseReceiver : MonoBehaviour
                 
                 if (mode == ReceiverMode.TransformAndScaled || mode == ReceiverMode.Scaled)
                 {
-
-                    var foot = baseCoord[13];
-                    var resizedFoot = foot / receivedScale;
-                    floorTransform = resizedFoot;
+                    if (isFloorTransformSet == false)
+                    {
+                        var footCenter = (baseCoord[10] + baseCoord[13]) / 2.0f;
+                        var resizedFoot = footCenter / receivedScale;
+                        floorTransform = resizedFoot;
+                        
+                        isFloorTransformSet = true;
+                    }
+                    
 
                     //divideFactor = thighDistance / boneDistance / 1.1f;
 

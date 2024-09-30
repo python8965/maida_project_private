@@ -39,7 +39,7 @@ public class DebugSceneScript : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        
+        #if UNITY_EDITOR
         if (isDrawText)
         {
             if (objs != null)
@@ -61,6 +61,7 @@ public class DebugSceneScript : MonoBehaviour
                 }
             }
         }
+        #endif
     }
 
     // Start is called before the first frame update
