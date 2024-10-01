@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 [System.Serializable]
@@ -32,13 +33,18 @@ public class BaseReceiver : MonoBehaviour
     
     
     
-    bool isFinished;
     
-    [ReadOnly]
-    public Vector3 floorTransform;
+    
+    [FormerlySerializedAs("floorTransform")] [ReadOnly]
+    public Vector3 centerOfFoot;
+    public Vector3 veticalVector;
+    
     public bool isFloorTransformSet;
+    public bool useVerticalVector = true;
+    
     public float receivedScale = 18.0f;
     
+    private bool isFinished;
     void Awake()
     {
         baseCoord = new Vector3[Helpers.CoordVectorSize];
@@ -142,11 +148,20 @@ public class BaseReceiver : MonoBehaviour
                 
                 if (mode == ReceiverMode.TransformAndScaled || mode == ReceiverMode.Scaled)
                 {
+                    var footCenter = (baseCoord[10] + baseCoord[13]) / 2.0f;
+                    var resizedFootCenter = footCenter / receivedScale;
+                    
+                    var resizedVerticalVector = baseCoord[135] / receivedScale;
+                        
                     if (isFloorTransformSet == false)
                     {
-                        var footCenter = (baseCoord[10] + baseCoord[13]) / 2.0f;
-                        var resizedFoot = footCenter / receivedScale;
-                        floorTransform = resizedFoot;
+                        
+
+                        
+                        
+                        centerOfFoot = resizedFootCenter;
+                        veticalVector = resizedVerticalVector;
+                        
                         
                         isFloorTransformSet = true;
                     }
@@ -156,7 +171,8 @@ public class BaseReceiver : MonoBehaviour
 
                     for (int i = 0; i < Helpers.CoordVectorSize; i++)
                     {
-                        baseCoord[i] = baseCoord[i] / receivedScale - floorTransform;
+                        baseCoord[i] = baseCoord[i] / receivedScale - centerOfFoot +
+                                       (useVerticalVector ? veticalVector - resizedVerticalVector : Vector3.zero);
                     }
                 }
 
