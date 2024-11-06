@@ -31,6 +31,8 @@ public class CustomizeScript : MonoBehaviour
     
     public double[] scale;
 
+    public bool CalibrateEveryFrame;
+
     private bool isChanged;
     
     private IKScript ik;
@@ -189,7 +191,10 @@ public class CustomizeScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Calibrate();
+        if (CalibrateEveryFrame)
+        {
+            Calibrate();
+        }
         
         for (int i = 0; i < customizeBones.Length; i++)
         {
